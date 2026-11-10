@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Appearance Settings
+Exec=systemsettings kcm_colors
+Icon=preferences-desktop-color
+Categories=Settings;
