@@ -1,0 +1,34 @@
+name: GameXWIN Android - Bliss OS 16 experimental
+on:
+  workflow_dispatch:
+    inputs:
+      publish_iso:
+        description: 'Upload modified GApps ISO artifact (only if redistribution is permitted)'
+        required: true
+        default: false
+        type: boolean
+jobs:
+  remix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ISO tooling
+        run: sudo apt-get update && sudo apt-get install -y xorriso curl
+      - name: Download and verify upstream Bliss OS
+        run: bash android/bliss/build-remix.sh
+      - name: Upload ISO only when explicitly authorized
+        if: ${{ inputs.publish_iso }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameXWIN-Android-Bliss16-experimental
+          path: android/bliss/dist/GameXWIN-Android-Bliss16.iso
+          if-no-files-found: error
+          retention-days: 1
+      - name: Upload build report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameXWIN-Android-build-report
+          path: android/bliss/dist/*.txt
+          if-no-files-found: warn
