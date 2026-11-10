@@ -1,0 +1,4 @@
+GameXWIN OS 1.0 Aether Edition
+Original GX branding and animated startup asset.
+The ISO remixer does not yet replace internal Bliss OS boot splash, Android bootanimation, system app logos, or app names. These require extraction/repacking of the actual Android system and boot assets and a verified boot test.
+Do not claim full debranding until each component is tested.
