@@ -80,7 +80,7 @@ jobs:
            void showApps(){Intent i=new Intent(Intent.ACTION_MAIN);i.addCategory(Intent.CATEGORY_LAUNCHER);List<ResolveInfo> all=getPackageManager().queryIntentActivities(i,0);for(ResolveInfo r:all){String label=r.loadLabel(getPackageManager()).toString();button(label,()->{Intent launch=getPackageManager().getLaunchIntentForPackage(r.activityInfo.packageName);if(launch!=null)startActivity(launch);});}}
            @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(result==RESULT_OK&&data!=null&&data.getData()!=null){Uri uri=data.getData();if(request==1){Intent i=new Intent(Intent.ACTION_VIEW);i.setDataAndType(uri,getContentResolver().getType(uri));i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);try{startActivity(i);}catch(Exception e){Toast.makeText(this,uri.toString(),Toast.LENGTH_LONG).show();}}else Toast.makeText(this,"Seçildi: "+uri,Toast.LENGTH_LONG).show();}}
           }'''
-           java.joinpath("MainActivity.java").write_text(src.replace("PACKAGE",pkg).replace("TITLE",title).replace("KIND",kind))
+           java.joinpath("MainActivity.java").write_text(src.replace("PACKAGE",pkg).replace('h.setText("TITLE")','h.setText("'+title+'")').replace('switch("KIND")','switch("'+kind+'")'))
           
           PY
           python3 /tmp/create_apps.py
