@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Android Setup
+Exec=konsole -e sh -c 'sudo gamexwin-android-setup; printf "Press Enter"; read x'
+Icon=applications-system
+Categories=System;
+Terminal=false
