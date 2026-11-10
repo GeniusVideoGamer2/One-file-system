@@ -9,6 +9,7 @@ lb config --mode debian --distribution trixie --architectures amd64 --binary-ima
 mkdir -p config/package-lists config/includes.chroot
 cp ../packages.list.chroot config/package-lists/gamexwin.list.chroot
 cp -a ../overlay/. config/includes.chroot/
+chmod 755 config/includes.chroot/usr/local/bin/gamexwin-*
 sudo lb build
 mkdir -p ../dist
 cp live-image-amd64.hybrid.iso ../dist/GameXWIN-Linux-Aether-amd64.iso
