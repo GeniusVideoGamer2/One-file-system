@@ -74,10 +74,10 @@ jobs:
            case "launcher":showApps();break;
            case "files":button("Dosya aç",()->pick("*/*"));button("Yeni metin dosyası oluştur",()->create());button("Klasör seç",()->startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),3));break;
            case "gallery":button("Fotoğraf aç",()->pick("image/*"));button("Video aç",()->pick("video/*"));break;
-           case "settings":button("Wi-Fi ayarları",()->launch(android.provider.Settings.ACTION_WIFI_SETTINGS));button("Bluetooth ayarları",()->launch(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));button("Ekran ayarları",()->launch(android.provider.Settings.ACTION_DISPLAY_SETTINGS));button("Uygulama ayarları",()->launch(android.provider.Settings.ACTION_APPLICATION_SETTINGS));break;
-           case "control":button("İnternet ayarları",()->launch(android.provider.Settings.ACTION_WIRELESS_SETTINGS));button("Bluetooth ayarları",()->launch(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));button("Ses ayarları",()->launch(android.provider.Settings.ACTION_SOUND_SETTINGS));button("Bildirim ayarları",()->launch(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS));break;
+           case "settings":button("Wi-Fi ayarları",()->launch(android.provider.Settings.ACTION_WIFI_SETTINGS));button("Bluetooth ayarları",()->launch(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));button("Ekran ayarları",()->launch(android.provider.Settings.ACTION_DISPLAY_SETTINGS));button("Uygulama ayarları",()->launch(android.provider.Settings.ACTION_SETTINGS));break;
+           case "control":button("İnternet ayarları",()->launch(android.provider.Settings.ACTION_WIRELESS_SETTINGS));button("Bluetooth ayarları",()->launch(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));button("Ses ayarları",()->launch(android.provider.Settings.ACTION_SOUND_SETTINGS));button("Bildirim ayarları",()->launch(android.provider.Settings.ACTION_SETTINGS));break;
            }}
-           void showApps(){Intent i=new Intent(Intent.ACTION_MAIN);i.addCategory(Intent.CATEGORY_LAUNCHER);List<ResolveInfo> all=getPackageManager().queryIntentActivities(i,0);Collections.sort(all,new ResolveInfo.DisplayNameComparator(getPackageManager()));for(ResolveInfo r:all){String label=r.loadLabel(getPackageManager()).toString();button(label,()->{Intent launch=getPackageManager().getLaunchIntentForPackage(r.activityInfo.packageName);if(launch!=null)startActivity(launch);});}}
+           void showApps(){Intent i=new Intent(Intent.ACTION_MAIN);i.addCategory(Intent.CATEGORY_LAUNCHER);List<ResolveInfo> all=getPackageManager().queryIntentActivities(i,0);for(ResolveInfo r:all){String label=r.loadLabel(getPackageManager()).toString();button(label,()->{Intent launch=getPackageManager().getLaunchIntentForPackage(r.activityInfo.packageName);if(launch!=null)startActivity(launch);});}}
            @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(result==RESULT_OK&&data!=null&&data.getData()!=null){Uri uri=data.getData();if(request==1){Intent i=new Intent(Intent.ACTION_VIEW);i.setDataAndType(uri,getContentResolver().getType(uri));i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);try{startActivity(i);}catch(Exception e){Toast.makeText(this,uri.toString(),Toast.LENGTH_LONG).show();}}else Toast.makeText(this,"Seçildi: "+uri,Toast.LENGTH_LONG).show();}}
           }'''
            java.joinpath("MainActivity.java").write_text(src.replace("PACKAGE",pkg).replace("TITLE",title).replace("KIND",kind))
@@ -90,7 +90,7 @@ jobs:
           set -e
           mkdir -p artifacts
           for app in launcher files gallery settings control; do
-            (cd "build-src/$app" && gradle --no-daemon assembleDebug)
+            (cd "build-src/$app" && gradle --no-daemon --console=plain assembleDebug)
             cp "build-src/$app/app/build/outputs/apk/debug/app-debug.apk" "artifacts/GameXOS-$app.apk"
             (cd artifacts && zip "GameXOS-$app.zip" "GameXOS-$app.apk")
           done
