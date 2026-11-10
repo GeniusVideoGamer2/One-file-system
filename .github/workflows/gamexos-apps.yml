@@ -87,16 +87,37 @@ jobs:
       - name: Build and package separate ZIPs
         shell: bash
         run: |
-          set -e
-          mkdir -p artifacts
+          mkdir -p artifacts logs
+          failed=0
           for app in launcher files gallery settings control; do
-            (cd "build-src/$app" && gradle --no-daemon --console=plain assembleDebug)
-            cp "build-src/$app/app/build/outputs/apk/debug/app-debug.apk" "artifacts/GameXOS-$app.apk"
-            (cd artifacts && zip "GameXOS-$app.zip" "GameXOS-$app.apk")
+            echo "::group::Build $app"
+            if (cd "build-src/$app" && gradle --no-daemon --console=plain assembleDebug) > "logs/$app.log" 2>&1; then
+              cp "build-src/$app/app/build/outputs/apk/debug/app-debug.apk" "artifacts/GameXOS-$app.apk"
+              (cd artifacts && zip "GameXOS-$app.zip" "GameXOS-$app.apk")
+              echo "SUCCESS: $app"
+            else
+              failed=1
+              echo "::error title=GameXOS $app compile failed::Check compiler errors below"
+              grep -n -E 'error:|FAILURE:|What went wrong|Execution failed' "logs/$app.log" | head -35 || true
+            fi
+            tail -35 "logs/$app.log"
+            echo "::endgroup::"
           done
+          if [ "$failed" -ne 0 ]; then
+            echo "Some apps failed; see GameXOS-Build-Logs artifact"
+            exit 1
+          fi
+      - name: Upload build logs (including failures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameXOS-Build-Logs
+          path: logs/*.log
+          if-no-files-found: warn
       - name: Upload each app ZIP
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: GameXOS-Five-Separate-App-ZIPs
           path: artifacts/*.zip
-          if-no-files-found: error
+          if-no-files-found: warn
