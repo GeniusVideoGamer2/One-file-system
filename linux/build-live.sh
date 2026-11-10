@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+command -v lb >/dev/null || { echo "Install live-build first"; exit 1; }
+rm -rf work
+mkdir -p work
+cd work
+lb config --mode debian --distribution trixie --architectures amd64 --binary-images iso-hybrid --debian-installer none --archive-areas "main contrib non-free-firmware" --bootappend-live "boot=live components quiet splash" --iso-application "GameXWIN Linux Aether" --iso-publisher "GameXWIN Community"
+mkdir -p config/package-lists config/includes.chroot
+cp ../packages.list.chroot config/package-lists/gamexwin.list.chroot
+cp -a ../overlay/. config/includes.chroot/
+sudo lb build
+mkdir -p ../dist
+cp live-image-amd64.hybrid.iso ../dist/GameXWIN-Linux-Aether-amd64.iso
+sha256sum ../dist/*.iso
