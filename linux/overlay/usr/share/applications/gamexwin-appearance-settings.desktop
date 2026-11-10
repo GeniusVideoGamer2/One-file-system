@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=GameXWIN Appearance Settings
-Exec=systemsettings kcm_colors
-Icon=preferences-desktop-color
+Exec=xfce4-appearance-settings
+Icon=preferences-desktop-theme
 Categories=Settings;
