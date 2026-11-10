@@ -1,0 +1,31 @@
+{
+  "name": "GameXWIN Appearance Engine",
+  "status": "design tokens only",
+  "themes": [
+    {
+      "name": "Aether Glass",
+      "background": "#10162E",
+      "accent": "#8276FF"
+    },
+    {
+      "name": "Crystal UI",
+      "background": "#F4F7FC",
+      "accent": "#5598DF"
+    },
+    {
+      "name": "GameX Neon",
+      "background": "#08090E",
+      "accent": "#F04DBA"
+    },
+    {
+      "name": "Aurora Flow",
+      "background": "#0C2526",
+      "accent": "#38C9AC"
+    },
+    {
+      "name": "Obsidian",
+      "background": "#15171C",
+      "accent": "#8B93A5"
+    }
+  ]
+}
