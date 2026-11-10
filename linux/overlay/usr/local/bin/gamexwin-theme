@@ -2,16 +2,16 @@
 set -eu
 theme="${1:-Aether-Glass}"
 case "$theme" in
- Aether-Glass) scheme="GameXWIN-Aether";;
- Crystal-UI) scheme="GameXWIN-Crystal";;
- GameX-Neon) scheme="GameXWIN-Neon";;
- Aurora-Flow) scheme="GameXWIN-Aurora";;
- Obsidian) scheme="GameXWIN-Obsidian";;
- *) echo "Themes: Aether-Glass Crystal-UI GameX-Neon Aurora-Flow Obsidian"; exit 2;;
+ Aether-Glass) bg='#12172e';accent='#8270ff';;
+ Crystal-UI) bg='#f4f7fc';accent='#5598df';;
+ GameX-Neon) bg='#08090e';accent='#f04dba';;
+ Aurora-Flow) bg='#0c2526';accent='#38c9ac';;
+ Obsidian) bg='#15171c';accent='#8b93a5';;
+ *) echo "Themes: Aether-Glass Crystal-UI GameX-Neon Aurora-Flow Obsidian";exit 2;;
 esac
-if command -v plasma-apply-colorscheme >/dev/null 2>&1; then
- plasma-apply-colorscheme "$scheme"
-else
- echo "Plasma color scheme tool not available"; exit 1
-fi
-echo "Applied $theme"
+if ! command -v xfconf-query >/dev/null;then echo 'XFCE required';exit 1;fi
+xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/color-style -n -t int -s 0 || true
+xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/rgba1 -n -t double -t double -t double -t double -s 0.07 -s 0.09 -s 0.18 -s 1 || true
+mkdir -p "$HOME/.config/gamexwin"
+printf 'theme=%s\nbackground=%s\naccent=%s\n' "$theme" "$bg" "$accent" > "$HOME/.config/gamexwin/theme.conf"
+echo "Saved $theme theme preference (full XFCE theming remains in development)"
