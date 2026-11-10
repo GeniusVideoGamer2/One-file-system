@@ -14,7 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ISO tooling
-        run: sudo apt-get update && sudo apt-get install -y xorriso curl
+        run: sudo apt-get update && sudo apt-get install -y xorriso curl python3-pil
+      - name: Generate original GX boot animation asset
+        run: python3 android/bliss/tools/make-bootanimation.py
       - name: Download and verify upstream Bliss OS
         run: bash android/bliss/build-remix.sh
       - name: Upload ISO only when explicitly authorized
