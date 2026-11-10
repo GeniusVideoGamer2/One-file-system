@@ -1,0 +1,8 @@
+#!/bin/sh
+if ! command -v wine >/dev/null 2>&1; then
+  echo "Wine is not installed"; exit 1
+fi
+if [ "$#" -eq 0 ]; then
+  echo "Usage: gamexwin-windows /path/to/app.exe"; exit 2
+fi
+exec wine "$@"
