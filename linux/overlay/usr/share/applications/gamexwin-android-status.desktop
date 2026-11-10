@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Android Status
+Exec=sh -c 'gamexwin-android-status; printf "\nPress Enter to close"; read x'
+Terminal=true
+Categories=System;
