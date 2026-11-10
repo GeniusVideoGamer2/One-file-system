@@ -1,0 +1,6 @@
+GameXWIN Linux Aether Edition
+KDE Plasma desktop + five GameXWIN color schemes.
+Windows application compatibility: Wine (limited to supported apps).
+Android: Waydroid helper; runtime and Google Play NOT bundled.
+GameXWIN theme selector available from the application menu.
+Not a fully verified distribution. ISO must pass build and VM boot tests.
