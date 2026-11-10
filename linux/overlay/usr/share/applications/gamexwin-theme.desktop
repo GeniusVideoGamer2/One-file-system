@@ -1,7 +1,6 @@
 [Desktop Entry]
 Type=Application
 Name=GameXWIN Theme Switcher
-Exec=konsole -e sh -c 'echo "Themes: Aether-Glass Crystal-UI GameX-Neon Aurora-Flow Obsidian"; printf "Theme: "; read t; gamexwin-theme "$t"; printf "Press Enter"; read x'
+Exec=xfce4-terminal --command="sh -c 'echo Themes: Aether-Glass Crystal-UI GameX-Neon Aurora-Flow Obsidian; printf Theme:; read t; gamexwin-theme \"$t\"; read x'"
 Icon=preferences-desktop-theme
 Categories=Settings;
-Terminal=false
