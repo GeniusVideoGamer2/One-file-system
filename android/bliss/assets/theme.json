@@ -1,0 +1,13 @@
+{
+  "name": "GameXWIN Aether",
+  "version": "1.0",
+  "brand": "GX",
+  "desktop": "Android (Bliss OS 16)",
+  "themes": {
+    "Aether Glass": {"background": "#12172e", "accent": "#8270ff"},
+    "Crystal UI": {"background": "#f4f7fc", "accent": "#5598df"},
+    "GameX Neon": {"background": "#08090e", "accent": "#f04dba"},
+    "Aurora Flow": {"background": "#0c2526", "accent": "#38c9ac"},
+    "Obsidian": {"background": "#15171c", "accent": "#8b93a5"}
+  }
+}
