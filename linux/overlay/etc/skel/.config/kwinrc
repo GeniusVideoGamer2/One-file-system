@@ -1,0 +1,6 @@
+[Compositing]
+Enabled=true
+[Effect-blur]
+Enabled=true
+[Plugins]
+blurEnabled=true
