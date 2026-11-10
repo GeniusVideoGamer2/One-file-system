@@ -1,0 +1,7 @@
+PRETTY_NAME="GameXWIN Linux Aether 1.0 (Debian based)"
+NAME="GameXWIN Linux Aether"
+VERSION_ID="1.0"
+VERSION="1.0"
+ID=gamexwin
+ID_LIKE=debian
+HOME_URL="https://github.com/GeniusVideoGamer2/One-file-system"
