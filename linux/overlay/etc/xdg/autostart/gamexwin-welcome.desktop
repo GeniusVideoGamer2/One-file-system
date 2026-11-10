@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Welcome
+Exec=sh -c 'command -v notify-send >/dev/null && notify-send "GameXWIN Linux Aether" "KDE Plasma desktop ready. Windows compatibility via Wine." || true'
+OnlyShowIn=KDE;
