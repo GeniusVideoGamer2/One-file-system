@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+if [ "$(id -u)" -ne 0 ]; then echo "Run with sudo"; exit 1; fi
+if [ ! -e /dev/binder ] && [ ! -e /dev/binderfs/binder ]; then
+ echo "Android binder device not found; Waydroid may require a compatible kernel."; exit 1
+fi
+if ! command -v waydroid >/dev/null 2>&1; then
+ echo "Waydroid is not installed. On Debian 13, enable trixie-backports and install waydroid."
+ echo "See: https://docs.waydro.id/usage/install-on-desktops"; exit 1
+fi
+echo "Initializing Waydroid (downloads Android image; network required)."
+waydroid init
+echo "Done. Log in to a Wayland Plasma session and run: waydroid first-launch"
