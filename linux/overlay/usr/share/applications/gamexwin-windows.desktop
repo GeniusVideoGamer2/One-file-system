@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Windows Compatibility
+Comment=Wine configuration
+Exec=winecfg
+Terminal=false
+Categories=System;
