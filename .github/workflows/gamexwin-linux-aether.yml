@@ -1,0 +1,29 @@
+name: GameXWIN Linux Aether ISO
+on:
+  workflow_dispatch:
+  push:
+    branches: [gamexwin-os-1.0]
+    paths:
+      - 'linux/**'
+      - '.github/workflows/gamexwin-linux-aether.yml'
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install live-build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin mtools dosfstools
+      - name: Build GameXWIN Linux Aether ISO
+        run: bash linux/build-live.sh
+      - name: Verify image
+        run: test -s linux/dist/GameXWIN-Linux-Aether-amd64.iso
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameXWIN-Linux-Aether-amd64
+          path: linux/dist/GameXWIN-Linux-Aether-amd64.iso
+          if-no-files-found: error
+          retention-days: 7
