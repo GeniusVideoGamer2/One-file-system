@@ -1,0 +1,8 @@
+#!/bin/sh
+printf 'GameXWIN Android compatibility status\n'
+if command -v waydroid >/dev/null 2>&1; then
+  waydroid status
+else
+  printf 'Waydroid is not installed. Kernel binder support and compatible environment are required.\n'
+  printf 'Google Play is not bundled or promised.\n'
+fi
