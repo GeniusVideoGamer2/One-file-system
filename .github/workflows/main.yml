@@ -163,6 +163,22 @@ jobs:
               archive.extractall('source')
           PYCODE
 
+      - name: Apply Fusion UI 2.1 modern design
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          java = Path('source/GameXOS-Mobile-Fusion-Suite-v1.0/app/src/main/java/com/gamexos/mobile/MainActivity.java')
+          s = java.read_text()
+          s = s.replace('d.setCornerRadius(36);d.setStroke(1,0x447e9bd5);', 'd.setCornerRadius(48);d.setStroke(2,0x667e9bd5);')
+          s = s.replace('layout.setPadding(20,36,20,40);layout.setBackgroundColor(theme==2?0xff08090c:0xff101225);', 'layout.setPadding(24,52,24,48);android.graphics.drawable.GradientDrawable bg=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,theme==2?new int[]{0xff08090c,0xff171925,0xff08090c}:new int[]{0xff111329,0xff232045,0xff101a2d});layout.setBackground(bg);')
+          s = s.replace('TextView h=label(title,29);', 'TextView h=label(title,32);')
+          s = s.replace('c.setPadding(8,7,8,7);c.setBackground(shape(0xff252943));', 'c.setPadding(12,12,12,12);c.setElevation(8f);c.setBackground(shape(theme==2?0xff1c1e29:0xff2a2b4c));')
+          s = s.replace('p.setMargins(0,7,0,7);', 'p.setMargins(0,10,0,10);')
+          s = s.replace('page("GameXOS  ✦ Fusion","Türkiye Edition • SM-A376B/DS hedefi • Demo");', 'page("GameXOS  ✦ Fusion UI 2.1","MODERN EDITION  •  Aether Glass / Nova Flux / Obsidian X");')
+          java.write_text(s)
+          PYCODE
+
       - name: Build APK
         working-directory: source/GameXOS-Mobile-Fusion-Suite-v1.0
         run: gradle --no-daemon assembleDebug
