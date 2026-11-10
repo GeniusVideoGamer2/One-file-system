@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+theme="${1:-Aether-Glass}"
+case "$theme" in
+ Aether-Glass) scheme="GameXWIN-Aether";;
+ Crystal-UI) scheme="GameXWIN-Crystal";;
+ GameX-Neon) scheme="GameXWIN-Neon";;
+ Aurora-Flow) scheme="GameXWIN-Aurora";;
+ Obsidian) scheme="GameXWIN-Obsidian";;
+ *) echo "Themes: Aether-Glass Crystal-UI GameX-Neon Aurora-Flow Obsidian"; exit 2;;
+esac
+if command -v plasma-apply-colorscheme >/dev/null 2>&1; then
+ plasma-apply-colorscheme "$scheme"
+else
+ echo "Plasma color scheme tool not available"; exit 1
+fi
+echo "Applied $theme"
