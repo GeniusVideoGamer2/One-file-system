@@ -1,0 +1,3 @@
+# GameXWIN boot animation and branding
+
+Run `python3 android/bliss/tools/make-bootanimation.py` with Pillow installed to generate an original Android-compatible `bootanimation.zip` at `android/bliss/assets/bootanimation.zip`. The ISO workflow packages this file as a **resource**; it does not install it into the Android OS. Run `bash android/bliss/tools/inspect-iso.sh <iso>` to inspect potential system and splash assets. Replacing Bliss's internal logo requires understanding the upstream system image and bootloader, plus validation in QEMU. Existing upstream trademarks must not be misrepresented as removed.
