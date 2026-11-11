@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Reminders
+Exec=python3 /usr/local/bin/gx-suite reminders
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
