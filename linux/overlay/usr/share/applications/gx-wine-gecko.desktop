@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GX Wine Gecko Setup
+Comment=Initialize Wine and install Gecko if prompted
+Exec=python3 /usr/local/bin/gx-wine-gecko-setup
+Icon=applications-internet
+Terminal=false
+Categories=Utility;System;

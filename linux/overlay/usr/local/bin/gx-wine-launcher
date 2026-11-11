@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Open a user-selected Windows executable with Wine."""
+import os,subprocess,shutil,sys
+from pathlib import Path
+import tkinter as tk
+from tkinter import filedialog,messagebox
+root=tk.Tk();root.withdraw()
+if not shutil.which("wine"):
+    messagebox.showerror("GX Wine","Wine is not installed.");sys.exit(1)
+filename=sys.argv[1] if len(sys.argv)>1 else filedialog.askopenfilename(title="GX Wine · Choose Windows program",filetypes=[("Windows programs","*.exe *.msi"),("All files","*")])
+if not filename:sys.exit(0)
+path=Path(filename).expanduser().resolve()
+if not path.is_file():messagebox.showerror("GX Wine","File not found.");sys.exit(1)
+if path.suffix.lower() not in (".exe",".msi"):
+    messagebox.showerror("GX Wine","Only .exe and .msi files are supported.");sys.exit(1)
+if not messagebox.askyesno("GX Wine",f"Run this Windows program with Wine?\n\n{path}\n\nOnly run programs from sources you trust."):sys.exit(0)
+cmd=["wine","msiexec","/i",str(path)] if path.suffix.lower()==".msi" else ["wine",str(path)]
+subprocess.Popen(cmd,cwd=str(path.parent),start_new_session=True)

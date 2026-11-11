@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+# Theme files are included by Plymouth's initramfs integration.
+exit 0

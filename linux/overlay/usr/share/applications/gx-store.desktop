@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=GX Store
-Exec=python3 /usr/local/bin/gx-suite store
+Exec=python3 /usr/local/bin/gx-store
 Icon=applications-utilities
 Terminal=false
 Categories=Utility;
