@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""Initialize Wine and allow its supported Gecko installer prompt."""
+import shutil,subprocess,tkinter as tk
+from tkinter import messagebox
+root=tk.Tk();root.withdraw()
+if not shutil.which("wineboot"):
+    messagebox.showerror("GX Wine Gecko","Wine is not installed.");raise SystemExit(1)
+if not messagebox.askyesno("GX Wine Gecko","Initialize or update your Wine prefix?\n\nWine may offer to download Gecko if it is missing. Internet access may be required."):
+    raise SystemExit(0)
+try:
+    subprocess.Popen(["wineboot","-u"],start_new_session=True)
+    messagebox.showinfo("GX Wine Gecko","Wine initialization started. Follow any Gecko installation prompt from Wine.")
+except OSError as exc:
+    messagebox.showerror("GX Wine Gecko",str(exc))
