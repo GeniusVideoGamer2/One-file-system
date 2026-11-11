@@ -6,3 +6,5 @@ include ':settings'
 include ':folders'
 include ':gallery'
 include ':volume'
+
+include ':unified'
