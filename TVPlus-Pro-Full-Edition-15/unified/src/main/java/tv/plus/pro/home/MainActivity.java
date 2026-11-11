@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
  LinearLayout actions=new LinearLayout(this);actions.setOrientation(wide?0:1);content.addView(actions);
  miniAction(actions,"▶  Video Aç",()->pick("video/*",12));
  miniAction(actions,"▧  Fotoğraf Aç",()->pick("image/*",11));
- miniAction(actions,"▣  Dosyaları Gez",()->tree());miniAction(actions,"★  Favoriler",()->favorites());miniAction(actions,"✦  Akıllı Araçlar",()->toolsHub());miniAction(actions,"◈  Pro Kontrol",()->advancedHub());miniAction(actions,"✦  Ambient TV",()->openAmbient());
+ miniAction(actions,"▣  Dosyaları Gez",()->tree());miniAction(actions,"★  Favoriler",()->favorites());miniAction(actions,"✦  Akıllı Araçlar",()->toolsHub());miniAction(actions,"◈  Pro Kontrol",()->advancedHub());miniAction(actions,"✦  Ambient TV",()->openAmbient());miniAction(actions,"🎮  Türk City Oyunu",()->startActivity(new Intent(this,tv.plus.pro.game.TurkCityActivity.class)));
  if(wide){gap(content,6);volumePanel();}
  }
  void shortcut(LinearLayout parent,String title,String subtitle,int iconId,Runnable action){
