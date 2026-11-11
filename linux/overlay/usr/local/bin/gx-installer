@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""GX Installer preview. Deliberately READ-ONLY: no partition or disk writes."""
+import json, subprocess, tkinter as tk
+from tkinter import ttk, messagebox
+root=tk.Tk();root.title("GX Installer · Safe Preview");root.geometry("850x590");root.minsize(640,470);root.configure(bg="#161429")
+style=ttk.Style(root);style.theme_use("clam")
+style.configure("TFrame",background="#161429")
+style.configure("TLabel",background="#161429",foreground="#f2eaff",font=("Sans",11))
+style.configure("Header.TLabel",font=("Sans",23,"bold"))
+style.configure("TButton",padding=11)
+main=ttk.Frame(root,padding=26);main.pack(fill="both",expand=True)
+ttk.Label(main,text="GX  /  GameXWIN Installer",style="Header.TLabel").pack(anchor="w")
+ttk.Label(main,text="Aether Edition · Disk selection preview · NO CHANGES WILL BE MADE").pack(anchor="w",pady=(4,18))
+ttk.Label(main,text="GX Yükleme Yeri Seç",font=("Sans",15,"bold")).pack(anchor="w",pady=(0,10))
+columns=("name","size","model","type","mount")
+tree=ttk.Treeview(main,columns=columns,show="headings",height=11,selectmode="browse")
+for key,label,width in zip(columns,("Disk / Partition","Size","Model","Type","Mounted at"),(165,100,185,95,170)):
+    tree.heading(key,text=label);tree.column(key,width=width)
+tree.pack(fill="both",expand=True)
+selected=tk.StringVar(value="No target selected")
+def scan():
+    tree.delete(*tree.get_children());selected.set("No target selected")
+    try:
+        raw=subprocess.check_output(["lsblk","--json","--bytes","-o","NAME,PATH,SIZE,MODEL,TYPE,MOUNTPOINT"],text=True,timeout=10)
+        data=json.loads(raw)
+        def walk(items,parent=""):
+            for item in items:
+                name=item.get("path") or item.get("name") or "?"
+                size=int(item.get("size") or 0)/(1024**3)
+                values=(name,f"{size:.1f} GiB",item.get("model") or "",item.get("type") or "",item.get("mountpoint") or "")
+                tree.insert("", "end",values=values)
+                walk(item.get("children") or [],name)
+        walk(data.get("blockdevices",[]))
+    except Exception as exc:messagebox.showerror("GX Installer",f"Could not list devices: {exc}")
+def choose(event=None):
+    sel=tree.selection()
+    if sel:selected.set("Selected (preview only): "+str(tree.item(sel[0],"values")[0]))
+tree.bind("<<TreeviewSelect>>",choose)
+ttk.Label(main,textvariable=selected).pack(anchor="w",pady=10)
+ttk.Label(main,text="This is a read-only preview. No disk is partitioned, formatted, mounted or modified.",wraplength=700).pack(anchor="w")
+buttons=ttk.Frame(main);buttons.pack(fill="x",pady=14)
+ttk.Button(buttons,text="Refresh disks",command=scan).pack(side="left",padx=(0,10))
+ttk.Button(buttons,text="Install (disabled for safety)",state="disabled").pack(side="left")
+scan();root.mainloop()
