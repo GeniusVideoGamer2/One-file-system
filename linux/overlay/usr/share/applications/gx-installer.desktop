@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GX Installer (Safe Preview)
+Comment=Read-only disk selection preview; installation disabled
+Exec=python3 /usr/local/bin/gx-installer
+Icon=drive-harddisk
+Terminal=false
+Categories=System;
