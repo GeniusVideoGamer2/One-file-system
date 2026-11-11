@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 command -v lb >/dev/null || { echo "Install live-build first"; exit 1; }
+python3 tools/generate-gx-icons.py
 rm -rf work
 mkdir -p work
 cd work
