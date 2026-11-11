@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
  miniAction(actions,"▶  Video Aç",()->pick("video/*",12));
  miniAction(actions,"▧  Fotoğraf Aç",()->pick("image/*",11));
  miniAction(actions,"▣  Dosyaları Gez",()->tree());miniAction(actions,"★  Favoriler",()->favorites());miniAction(actions,"✦  Akıllı Araçlar",()->toolsHub());
- if(wide){gap(content,6);volumePanel();}
+ gap(content,14);sectionHeading("▣  Desktop ve Sanallaştırma","",()->{});miniAction(content,"▣  Virtual Machine  •  USB Desktop",()->startActivity(new Intent(this,tv.plus.pro.unified.DesktopVmActivity.class)));if(wide){gap(content,6);volumePanel();}
  }
  void shortcut(LinearLayout parent,String title,String subtitle,int iconId,Runnable action){
  LinearLayout box=new LinearLayout(this);box.setOrientation(0);box.setGravity(Gravity.CENTER_VERTICAL);box.setPadding(dp(9),dp(9),dp(9),dp(9));box.setBackground(shape(0xff233f86,0xff492075,19));box.setFocusable(true);
