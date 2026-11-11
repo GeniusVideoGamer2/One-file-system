@@ -1,4 +1,4 @@
-name: TV+ Pro Android 14 APK Build
+name: TV+ Pro Unified APK Build
 on:
   workflow_dispatch:
   push:
@@ -33,12 +33,12 @@ jobs:
       - name: Check project files
         run: |
           test -f TVPlus-Pro-Full-Edition-15/settings.gradle || test -f TVPlus-Pro-Full-Edition-15/settings.gradle.kts
-      - name: Build five debug APKs
+      - name: Build unified debug APK
         working-directory: TVPlus-Pro-Full-Edition-15
-        run: gradle --no-daemon :home:assembleDebug :settings:assembleDebug :folders:assembleDebug :gallery:assembleDebug :volume:assembleDebug
+        run: gradle --no-daemon :unified:assembleDebug
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: TVPlus-Pro-15-debug-apks
-          path: TVPlus-Pro-Full-Edition-15/*/build/outputs/apk/debug/*.apk
+          name: TVPlus-Pro-15-unified-debug-apk
+          path: TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug/*.apk
           if-no-files-found: error
