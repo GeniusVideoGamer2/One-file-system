@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     permissions:
       contents: read
     steps:
@@ -58,16 +59,45 @@ jobs:
       - name: Build Full Edition debug APK
         working-directory: TVPlus-Pro-Full-Edition-15
         run: gradle --no-daemon :full:assembleDebug :switcher:assembleDebug
-      - name: Upload APKs
+      - name: Verify built APK files
+        run: |
+          set -e
+          find TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -exec ls -lh {} \;
+          find TVPlus-Pro-Full-Edition-15/switcher/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -exec ls -lh {} \;
+          test -n "$(find TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -n "$(find TVPlus-Pro-Full-Edition-15/switcher/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -quit)"
+      - name: Upload APKs (first attempt)
+        id: upload_full
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: TVPlus-Pro-Full-Edition-15-debug-apk
           path: TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-
-      - name: Upload Launcher Switcher APK
+          retention-days: 7
+      - name: Retry Upload APKs
+        if: steps.upload_full.outcome == 'failure'
+        id: retry_full
+        uses: actions/upload-artifact@v4
+        with:
+          name: TVPlus-Pro-Full-Edition-15-debug-apk-retry
+          path: TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload Launcher Switcher APK (first attempt)
+        id: upload_switcher
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: TVPlus-Pro-Launcher-Switcher-debug-apk
           path: TVPlus-Pro-Full-Edition-15/switcher/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 7
+      - name: Retry Upload Launcher Switcher APK
+        if: steps.upload_switcher.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: TVPlus-Pro-Launcher-Switcher-debug-apk-retry
+          path: TVPlus-Pro-Full-Edition-15/switcher/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
