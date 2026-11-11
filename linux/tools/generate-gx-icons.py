@@ -2,7 +2,7 @@
 """Generate original GX SVG icons and desktop launchers, without external assets."""
 from pathlib import Path
 import html
-root=Path(__file__).resolve().parents[2]
+root=Path(__file__).resolve().parents[1]
 icons=root/"overlay/usr/share/icons/hicolor/scalable/apps"
 icons.mkdir(parents=True,exist_ok=True)
 apps={
