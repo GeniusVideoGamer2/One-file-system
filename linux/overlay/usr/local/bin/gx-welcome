@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""GameXWIN first-boot welcome wizard; user-level preferences only."""
+import json, os, pathlib, subprocess, tkinter as tk
+from tkinter import ttk, messagebox
+home=pathlib.Path.home()
+config=home/".config"/"gamexwin"
+marker=config/"welcome-complete.json"
+if marker.exists(): raise SystemExit(0)
+root=tk.Tk();root.title("GX Welcome · GameXWIN");root.geometry("760x520");root.minsize(590,420);root.configure(bg="#17142a")
+style=ttk.Style();style.theme_use("clam")
+style.configure("TFrame",background="#17142a")
+style.configure("TLabel",background="#17142a",foreground="#f5efff",font=("Sans",12))
+style.configure("TButton",padding=12)
+pages=[]
+language=tk.StringVar(value="Türkçe")
+theme=tk.StringVar(value="Dark")
+page=tk.IntVar(value=0)
+frame=ttk.Frame(root,padding=38);frame.pack(fill="both",expand=True)
+heading=ttk.Label(frame,text="",font=("Sans",27,"bold"));heading.pack(anchor="w",pady=(0,15))
+desc=ttk.Label(frame,text="",wraplength=620);desc.pack(anchor="w",pady=(0,20))
+controls=ttk.Frame(frame);controls.pack(fill="both",expand=True)
+footer=ttk.Frame(frame);footer.pack(fill="x",side="bottom",pady=10)
+back=ttk.Button(footer,text="Geri");back.pack(side="left")
+next_btn=ttk.Button(footer,text="Devam");next_btn.pack(side="right")
+def render():
+    for widget in controls.winfo_children():widget.destroy()
+    i=page.get()
+    back.configure(state="normal" if i else "disabled")
+    next_btn.configure(text="Tamamla" if i==3 else "Devam")
+    titles=["GameXWIN'e hoş geldin","Dil seçimi","Görünüm","Hazır!"]
+    descriptions=[
+      "GameXWIN OS Aether Edition USB üzerinden çalışıyor. Bu sihirbaz hiçbir diske kurulum yapmaz.",
+      "İlk açılış arayüzü için dil tercihini seç.",
+      "Masaüstü için tema tercihini seç.",
+      "Tercihlerini kaydet. Kalıcı depolama yapılandırılmadıysa bu ayarlar yeniden başlatmada kaybolabilir."
+    ]
+    heading.configure(text=titles[i]);desc.configure(text=descriptions[i])
+    if i==1:
+        for label in ("Türkçe","English"):
+            ttk.Radiobutton(controls,text=label,variable=language,value=label).pack(anchor="w",pady=8)
+    elif i==2:
+        for label in ("Dark","Light"):
+            ttk.Radiobutton(controls,text=label,variable=theme,value=label).pack(anchor="w",pady=8)
+    elif i==0:
+        ttk.Label(controls,text="• USB'den çalıştır\n• Bilgisayar disklerine dokunma\n• GX masaüstünü keşfet").pack(anchor="w")
+    else:
+        ttk.Label(controls,text="GX Welcome ✓").pack(anchor="w")
+def go_back():page.set(max(0,page.get()-1));render()
+def go_next():
+    if page.get()<3:page.set(page.get()+1);render();return
+    try:
+        config.mkdir(parents=True,exist_ok=True)
+        if subprocess.call(["which","xfconf-query"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)==0:
+            subprocess.run(["xfconf-query","-c","xsettings","-p","/Net/ThemeName","-s","Adwaita-dark" if theme.get()=="Dark" else "Adwaita"],check=False)
+        marker.write_text(json.dumps({"language":language.get(),"theme":theme.get(),"version":1},ensure_ascii=False,indent=2)+"\n")
+        root.destroy()
+    except OSError as exc:messagebox.showerror("GX Welcome",str(exc))
+back.configure(command=go_back);next_btn.configure(command=go_next)
+render();root.mainloop()
