@@ -12,6 +12,8 @@ mkdir -p config/package-lists config/includes.chroot
 find config -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i -e 's#security.debian.org/ trixie/updates#security.debian.org/debian-security trixie-security#g' -e 's#trixie/updates#trixie-security#g' {} +
 cp ../packages.list.chroot config/package-lists/gamexwin.list.chroot
 cp -a ../overlay/. config/includes.chroot/
+mkdir -p config/hooks/live
+cp ../hooks/*.hook.chroot config/hooks/live/
 chmod 755 config/includes.chroot/usr/local/bin/gamexwin-*
 sudo lb build
 mkdir -p ../dist
