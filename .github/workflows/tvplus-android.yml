@@ -1,4 +1,4 @@
-name: TV+ Pro Unified APK Build
+name: TV+ Pro Full Edition APK Build
 on:
   workflow_dispatch:
   push:
@@ -55,13 +55,13 @@ jobs:
               echo "::warning::QEMU engine missing for $abi; APK can build, but VM launch will be unavailable."
             fi
           done
-      - name: Build unified debug APK
+      - name: Build Full Edition debug APK
         working-directory: TVPlus-Pro-Full-Edition-15
-        run: gradle --no-daemon :unified:assembleDebug :switcher:assembleDebug
+        run: gradle --no-daemon :full:assembleDebug :switcher:assembleDebug
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: TVPlus-Pro-15-unified-debug-apk
+          name: TVPlus-Pro-Full-Edition-15-debug-apk
           path: TVPlus-Pro-Full-Edition-15/unified/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
