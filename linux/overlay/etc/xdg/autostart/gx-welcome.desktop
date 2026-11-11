@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GX Welcome
+Comment=GameXWIN first-session setup wizard
+Exec=python3 /usr/local/bin/gx-welcome
+Terminal=false
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true
