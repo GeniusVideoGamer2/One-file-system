@@ -51,6 +51,34 @@ public class TurkCityActivity extends Activity {
  cube=ByteBuffer.allocateDirect(verts.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();cube.put(verts).position(0);}
  @Override public void onSurfaceChanged(GL10 gl,int w,int h){GLES20.glViewport(0,0,w,h);Matrix.perspectiveM(projection,0,65,(float)w/Math.max(1,h),.1f,200);}
  void block(float bx,float by,float bz,float sx,float sy,float sz,float r,float g,float b){Matrix.setIdentityM(model,0);Matrix.translateM(model,0,bx,by,bz);Matrix.scaleM(model,0,sx,sy,sz);Matrix.multiplyMM(mvp,0,vp,0,model,0);GLES20.glUniformMatrix4fv(mvpLoc,1,false,mvp,0);GLES20.glUniform4f(colorLoc,r,g,b,1);GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,36);}
+ // Detailed low-poly car assembled from body, cabin, windows, wheels and lights.
+ void car(float cx,float cz,float yaw,int type,int paint,long now){
+ float cr=paint==2?.96f:paint==3?.09f:paint==1?.12f:.43f;
+ float cg=paint==2?.54f:paint==3?.11f:paint==1?.72f:.10f;
+ float cb=paint==2?.08f:paint==3?.18f:paint==1?.91f:.77f;
+ float width=type==2||type==6||type==7?1.27f:type==11?.83f:1.05f;
+ float length=type==7||type==10?2.65f:type==4?2.32f:type==11?1.42f:2.02f;
+ // Body and roof are rotated in world coordinates via local x/z axes.
+ carPart(cx,cz,yaw,0,.56f,0,width,.36f,length,cr,cg,cb);
+ carPart(cx,cz,yaw,0,1.02f,-.12f,width*.82f,type==2||type==7?.49f:.34f,length*.48f,.10f,.16f,.27f);
+ carPart(cx,cz,yaw,0,1.32f,-.12f,width*.73f,.07f,length*.38f,cr*.8f,cg*.8f,cb*.8f);
+ for(int side=-1;side<=1;side+=2)for(int end=-1;end<=1;end+=2){
+ carPart(cx,cz,yaw,side*(width+.10f),.31f,end*length*.68f,.19f,.29f,.34f,.025f,.029f,.042f);
+ carPart(cx,cz,yaw,side*(width+.22f),.31f,end*length*.68f,.035f,.15f,.19f,.42f,.44f,.48f);
+ }
+ for(int side=-1;side<=1;side+=2){
+ carPart(cx,cz,yaw,side*width*.73f,.68f,-length*.93f,.2f,.12f,.055f,1f,.91f,.66f);
+ carPart(cx,cz,yaw,side*width*.73f,.68f,length*.93f,.2f,.12f,.055f,.95f,.12f,.19f);
+ }
+ carPart(cx,cz,yaw,0,.65f,-length*1.01f,width*.58f,.10f,.035f,.08f,.08f,.12f);
+ if(type==0||type==8||type==9)carPart(cx,cz,yaw,0,1.08f,length*.91f,width*.9f,.06f,.17f,cr*.7f,cg*.7f,cb*.7f);
+ }
+ void carPart(float cx,float cz,float yaw,float lx,float y,float lz,float sx,float sy,float sz,float r,float g,float b){
+ float cs=(float)Math.cos(yaw),sn=(float)Math.sin(yaw);
+ float wx=cx+lx*cs+lz*sn,wz=cz-lx*sn+lz*cs;
+ Matrix.setIdentityM(model,0);Matrix.translateM(model,0,wx,y,wz);Matrix.rotateM(model,0,(float)Math.toDegrees(yaw),0,1,0);Matrix.scaleM(model,0,sx,sy,sz);
+ Matrix.multiplyMM(mvp,0,vp,0,model,0);GLES20.glUniformMatrix4fv(mvpLoc,1,false,mvp,0);GLES20.glUniform4f(colorLoc,r,g,b,1);GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,36);
+ }
  @Override public void onDrawFrame(GL10 gl){long now=System.nanoTime();float dt=Math.min(.05f,(now-last)/1e9f);last=now;if(jumpHeight>0||jumpVelocity>0){jumpHeight+=jumpVelocity*dt;jumpVelocity-=14f*dt;if(jumpHeight<0){jumpHeight=0;jumpVelocity=0;}}angle+=turn*dt*(driving?1.1f:1.6f);float target=move*(driving?17f:6f);speed+=(target-speed)*Math.min(1,dt*(driving?1.4f:8f));x+=Math.sin(angle)*speed*dt;z-=Math.cos(angle)*speed*dt;x=Math.max(-43,Math.min(43,x));z=Math.max(-43,Math.min(43,z));
  GLES20.glClearColor(night?.012f:.33f,night?.019f:.55f,night?.055f:.78f,1);GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);GLES20.glUseProgram(program);cube.position(0);GLES20.glVertexAttribPointer(posLoc,3,GLES20.GL_FLOAT,false,0,cube);GLES20.glEnableVertexAttribArray(posLoc);
  float behind=driving&&!cockpit?6.5f:0;float eye=driving?(cockpit?1.45f:3.6f):(crouch?1.2f:2.3f)+jumpHeight;Matrix.setLookAtM(view,0,x-(float)Math.sin(angle)*behind,eye,z+(float)Math.cos(angle)*behind,x+(float)Math.sin(angle)*10,driving?1.3f:1.8f,z-(float)Math.cos(angle)*10,0,1,0);Matrix.multiplyMM(vp,0,projection,0,view,0);
@@ -73,10 +101,21 @@ public class TurkCityActivity extends Activity {
  // Cosmetic-only energy pulse: visual collectible effect, not a projectile or damage system.
  if(now<pulseUntil){float t=(pulseUntil-now)/450000000f;float rr=effectSkin==2?1f:effectSkin==3?.2f:.45f;float gg=effectSkin==3?1f:effectSkin==1?.8f:.25f;float bb=effectSkin==2?.2f:1f;float px=x+(float)Math.sin(angle)*3,pz=z-(float)Math.cos(angle)*3;block(px,1.2f,pz,.3f+t*.6f,.3f+t*.6f,.3f+t*.6f,rr,gg,bb);}
  // Player-owned purple supercar, visible in third-person driving view.
- if(driving&&!cockpit){float cr=skin==2?.92f:skin==3?.08f:skin==1?.15f:.34f;float cg=skin==2?.55f:skin==3?.09f:skin==1?.68f:.07f;float cb=skin==2?.06f:skin==3?.16f:skin==1?.9f:.63f;float carWidth=carType==2||carType==6||carType==7?1.3f:carType==11?.82f:1.05f;float carLength=carType==7||carType==10?2.7f:carType==2?1.75f:carType==4?2.3f:2.05f;block(x,.52f,z,carWidth,.34f,carLength,cr,cg,cb);block(x,1.05f,z,.86f,.35f,.9f,.13f,.11f,.24f);block(x-.9f,.28f,z-1.1f,.25f,.28f,.4f,.035f,.04f,.06f);block(x+.9f,.28f,z-1.1f,.25f,.28f,.4f,.035f,.04f,.06f);block(x-.9f,.28f,z+1.1f,.25f,.28f,.4f,.035f,.04f,.06f);block(x+.9f,.28f,z+1.1f,.25f,.28f,.4f,.035f,.04f,.06f);}
+ if(driving&&!cockpit)car(x,z,angle,carType,skin,now);
  // Cockpit prototype: dashboard, windshield base, wheel and center console.
  if(driving&&cockpit){float frontX=x+(float)Math.sin(angle)*.65f,frontZ=z-(float)Math.cos(angle)*.65f;block(frontX,.9f,frontZ,1.12f,.19f,.32f,.12f,.1f,.21f);block(frontX,1.12f,frontZ,.27f,.08f,.18f,.32f,.15f,.65f);block(frontX-.38f,1.1f,frontZ,.23f,.23f,.08f,.045f,.05f,.08f);block(frontX+.38f,1.1f,frontZ,.23f,.23f,.08f,.045f,.05f,.08f);}
- for(int i=0;i<npcs.length;i++){float[] n=npcs[i];n[0]+=(float)Math.sin(now/1e9+i*2)*dt*.4f;n[1]+=(float)Math.cos(now/1e9+i)*dt*.4f;block(n[0],.72f,n[1],.32f,.7f,.25f,.32f,.27f+.025f*(i%6),.68f);block(n[0],1.64f,n[1],.26f,.27f,.26f,.92f,.7f,.56f);}
+ for(int i=0;i<npcs.length;i++){float[] n=npcs[i];float t=now/1e9f+i*2f;
+ float oldX=n[0],oldZ=n[1];n[0]+=(float)Math.sin(t)*dt*.4f;n[1]+=(float)Math.cos(t*.75f)*dt*.4f;
+ float walking=(float)Math.sin(t*5f)*.18f;
+ float coatR=.25f+(i%4)*.12f,coatG=.18f+(i%3)*.09f,coatB=.49f+(i%5)*.06f;
+ block(n[0],1.12f,n[1],.27f,.45f,.20f,coatR,coatG,coatB);
+ block(n[0],1.78f,n[1],.20f,.24f,.20f,.92f,.70f,.56f);
+ block(n[0]-.38f,.98f+walking,n[1],.11f,.38f,.12f,coatR,coatG,coatB);
+ block(n[0]+.38f,.98f-walking,n[1],.11f,.38f,.12f,coatR,coatG,coatB);
+ block(n[0]-.15f,.40f-walking,n[1],.13f,.39f,.14f,.11f,.15f,.27f);
+ block(n[0]+.15f,.40f+walking,n[1],.13f,.39f,.14f,.11f,.15f,.27f);
+ }
+
  }
  }
 }
