@@ -1,41 +1,138 @@
 #!/usr/bin/env python3
-"""GX Store: curated application catalog, no silent installation."""
-import shutil, subprocess, tkinter as tk, webbrowser
-from tkinter import ttk,messagebox
-root=tk.Tk();root.title("GameXOS Store · GameXWIN");root.geometry("900x620");root.configure(bg="#17142a")
-style=ttk.Style(root);style.theme_use("clam")
-style.configure("TFrame",background="#17142a")
-style.configure("TLabel",background="#17142a",foreground="#f5efff",font=("Sans",11))
-style.configure("TButton",padding=9)
-main=ttk.Frame(root,padding=24);main.pack(fill="both",expand=True)
-ttk.Label(main,text="GX  /  GameXOS Store",font=("Sans",25,"bold")).pack(anchor="w")
-ttk.Label(main,text="Discover Linux apps and Windows app downloads · Installation always requires your confirmation").pack(anchor="w",pady=(4,14))
-tabs=ttk.Notebook(main);tabs.pack(fill="both",expand=True)
-linux=ttk.Frame(tabs,padding=18);windows=ttk.Frame(tabs,padding=18)
-tabs.add(linux,text="Linux apps");tabs.add(windows,text="Windows · Wine")
-def open_url(url):
-    if messagebox.askyesno("GX Store","Open official website in your browser?\n"+url):webbrowser.open(url)
-def synaptic():
-    if shutil.which("synaptic"):subprocess.Popen(["synaptic"],start_new_session=True)
-    else:messagebox.showwarning("GX Store","Synaptic is not installed.")
-ttk.Label(linux,text="Install Linux software with the Debian package manager.").pack(anchor="w",pady=12)
-ttk.Button(linux,text="Open Synaptic Package Manager",command=synaptic).pack(anchor="w",pady=10)
-ttk.Label(linux,text="Firefox ESR, GParted, Wine and other packaged applications are managed through Debian.").pack(anchor="w",pady=10)
-ttk.Button(linux,text="Opera GX Linux · Official download",command=lambda:open_url("https://www.opera.com/gx/linux")).pack(anchor="w",pady=10)
-ttk.Label(windows,text="Windows installers may not work under Wine. Downloads and installs are never automatic.",wraplength=740).pack(anchor="w",pady=12)
-catalog=[
-("Google Chrome","https://www.google.com/chrome/"),
+"""GameXOS Store: searchable Debian APT catalog and curated official download links."""
+import re
+import shutil
+import subprocess
+import threading
+import tkinter as tk
+import webbrowser
+from tkinter import ttk, messagebox
 
-("Mozilla Firefox","https://www.mozilla.org/firefox/new/"),
-("VLC media player","https://www.videolan.org/vlc/"),
-("7-Zip","https://www.7-zip.org/"),
+root = tk.Tk()
+root.title("GameXOS Store · GameXWIN")
+root.geometry("960x660")
+root.minsize(700, 480)
+root.configure(bg="#17142a")
+style = ttk.Style(root)
+style.theme_use("clam")
+style.configure("TFrame", background="#17142a")
+style.configure("TLabel", background="#17142a", foreground="#f5efff", font=("Sans", 11))
+style.configure("TButton", padding=8)
+main = ttk.Frame(root, padding=22)
+main.pack(fill="both", expand=True)
+ttk.Label(main, text="GX  /  GameXOS Store", font=("Sans", 24, "bold")).pack(anchor="w")
+ttk.Label(main, text="Debian 13 application catalog · search available packages, review before installing").pack(anchor="w", pady=(4, 12))
+tabs = ttk.Notebook(main)
+tabs.pack(fill="both", expand=True)
+linux = ttk.Frame(tabs, padding=14)
+windows = ttk.Frame(tabs, padding=14)
+tabs.add(linux, text="Linux · APT")
+tabs.add(windows, text="Windows · Wine")
+
+def open_url(url):
+    if messagebox.askyesno("GX Store", "Open the official website?\n" + url):
+        webbrowser.open(url)
+
+def synaptic():
+    if shutil.which("synaptic"):
+        subprocess.Popen(["synaptic"], start_new_session=True)
+    else:
+        messagebox.showwarning("GX Store", "Synaptic is not installed.")
+
+search_row = ttk.Frame(linux)
+search_row.pack(fill="x", pady=8)
+query = tk.StringVar()
+entry = ttk.Entry(search_row, textvariable=query)
+entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
+results = ttk.Treeview(linux, columns=("package", "description"), show="headings", selectmode="browse")
+results.heading("package", text="Package")
+results.heading("description", text="Description")
+results.column("package", width=205)
+results.column("description", width=610)
+results.pack(fill="both", expand=True, pady=8)
+status = tk.StringVar(value="Search Debian's configured APT repositories. Not every Linux app is in Debian.")
+ttk.Label(linux, textvariable=status, wraplength=800).pack(anchor="w", pady=4)
+detail = tk.StringVar(value="Select a package to inspect.")
+ttk.Label(linux, textvariable=detail, wraplength=800).pack(anchor="w", pady=4)
+generation = [0]
+def search():
+    term = query.get().strip()
+    if len(term) < 2:
+        messagebox.showinfo("GX Store", "Enter at least two characters.")
+        return
+    generation[0] += 1
+    request_id = generation[0]
+    results.delete(*results.get_children())
+    detail.set("Select a package to inspect.")
+    status.set("Searching APT catalog...")
+    def worker():
+        try:
+            output = subprocess.run(["apt-cache", "search", "--", term], capture_output=True,
+                                    text=True, timeout=25, check=True).stdout
+            matches = []
+            for line in output.splitlines():
+                name, sep, description = line.partition(" - ")
+                if sep and re.fullmatch(r"[a-z0-9][a-z0-9+.-]*", name):
+                    matches.append((name, description))
+            def show():
+                if request_id != generation[0]:
+                    return
+                for item in matches[:250]:
+                    results.insert("", "end", values=item)
+                status.set(f"{len(matches)} matching packages; showing first {min(250,len(matches))}. "
+                           "Availability depends on configured Debian repositories.")
+            root.after(0, show)
+        except (OSError, subprocess.SubprocessError) as exc:
+            root.after(0, lambda error=str(exc): status.set("Search failed: " + error))
+    threading.Thread(target=worker, daemon=True).start()
+
+def selected_name():
+    selection = results.selection()
+    if not selection:
+        messagebox.showinfo("GX Store", "Choose a package first.")
+        return None
+    return str(results.item(selection[0], "values")[0])
+
+def inspect(_event=None):
+    name = selected_name() if results.selection() else None
+    if not name:
+        return
+    try:
+        info = subprocess.run(["apt-cache", "show", name], capture_output=True, text=True, timeout=10)
+        installed = subprocess.run(["dpkg-query", "-W", "-f=${Status}", name],
+                                   capture_output=True, text=True, timeout=10)
+        state = "Installed" if installed.stdout.strip() == "install ok installed" else "Not installed"
+        version = next((line[9:] for line in info.stdout.splitlines() if line.startswith("Version: ")), "unknown")
+        detail.set(f"{name} · {state} · Version: {version}")
+    except (OSError, subprocess.SubprocessError) as exc:
+        detail.set(str(exc))
+
+results.bind("<<TreeviewSelect>>", inspect)
+ttk.Button(search_row, text="Search", command=search).pack(side="left")
+entry.bind("<Return>", lambda _event: search())
+buttons = ttk.Frame(linux)
+buttons.pack(fill="x", pady=8)
+ttk.Button(buttons, text="Open Synaptic to install / remove", command=synaptic).pack(side="left", padx=(0, 10))
+ttk.Button(buttons, text="Opera GX Linux · Official website",
+           command=lambda: open_url("https://www.opera.com/gx/linux")).pack(side="left")
+ttk.Label(linux, text="APT catalog entries are package names, including libraries and tools—not only graphical apps. "
+          "GX Store does not silently install or remove packages.", wraplength=820).pack(anchor="w", pady=8)
+
+ttk.Label(windows, text="Windows applications may not work under Wine. Download and install only from trusted sources.",
+          wraplength=820).pack(anchor="w", pady=12)
+catalog = [
+    ("Google Chrome", "https://www.google.com/chrome/"),
+    ("Mozilla Firefox", "https://www.mozilla.org/firefox/new/"),
+    ("VLC media player", "https://www.videolan.org/vlc/"),
+    ("7-Zip", "https://www.7-zip.org/"),
 ]
-for name,url in catalog:
-    line=ttk.Frame(windows);line.pack(fill="x",pady=6)
-    ttk.Label(line,text=name,width=24).pack(side="left")
-    ttk.Button(line,text="Official download page",command=lambda u=url:open_url(u)).pack(side="left")
-def wine():
-    path="/usr/local/bin/gx-wine-launcher"
-    if shutil.which("python3"):subprocess.Popen(["python3",path],start_new_session=True)
-ttk.Button(windows,text="Open GX Wine Launcher",command=wine).pack(anchor="w",pady=20)
+for name, url in catalog:
+    line = ttk.Frame(windows)
+    line.pack(fill="x", pady=6)
+    ttk.Label(line, text=name, width=24).pack(side="left")
+    ttk.Button(line, text="Official download page",
+               command=lambda u=url: open_url(u)).pack(side="left")
+ttk.Button(windows, text="Open GX Wine Launcher",
+           command=lambda: subprocess.Popen(["python3", "/usr/local/bin/gx-wine-launcher"],
+                                            start_new_session=True)).pack(anchor="w", pady=18)
 root.mainloop()
