@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#120924"/><stop offset=".54" stop-color="#65205c"/><stop offset="1" stop-color="#1b0d37"/></linearGradient>
+<radialGradient id="moon"><stop stop-color="#ffc0f0"/><stop offset=".65" stop-color="#ed77ce"/><stop offset="1" stop-color="#a33fba"/></radialGradient>
+<linearGradient id="river" x2="0" y2="1"><stop stop-color="#fb71cd"/><stop offset="1" stop-color="#472b91"/></linearGradient>
+</defs>
+<rect width="1920" height="1080" fill="url(#sky)"/>
+<circle cx="650" cy="275" r="170" fill="url(#moon)" opacity=".9"/>
+<circle cx="650" cy="275" r="185" fill="none" stroke="#fa9ce6" stroke-opacity=".2" stroke-width="24"/>
+<path d="M0 650L160 380 285 555 430 350 620 620 810 410 1000 650 1210 390 1400 590 1620 340 1920 680V1080H0Z" fill="#391547"/>
+<path d="M0 735L220 505 405 710 630 490 835 735 1070 530 1270 735 1530 470 1740 670 1920 525V1080H0Z" fill="#251038"/>
+<path d="M0 850L310 640 590 810 820 635 1090 830 1380 640 1660 805 1920 660V1080H0Z" fill="#180d30"/>
+<path d="M850 760Q1180 820 1000 900T1190 1080H1060Q930 970 1090 910T770 780Z" fill="url(#river)" opacity=".8"/>
+<path d="M0 950Q350 790 680 945T1250 920 1920 860V1080H0Z" fill="#0c0b20" opacity=".8"/>
+<text x="1850" y="1030" fill="#e9c8ff" font-family="sans-serif" font-size="24" text-anchor="end" opacity=".6">GX • AETHER</text>
+</svg>
