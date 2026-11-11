@@ -7,6 +7,8 @@ include ':folders'
 include ':gallery'
 include ':volume'
 
-include ':unified'
+// Full Edition is built from the existing source directory to preserve all features.
+include ':full'
+project(':full').projectDir = file('unified')
 
 include ':switcher'
