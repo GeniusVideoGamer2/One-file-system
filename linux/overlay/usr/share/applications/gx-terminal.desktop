@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Terminal
+Exec=python3 /usr/local/bin/gx-suite terminal
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
