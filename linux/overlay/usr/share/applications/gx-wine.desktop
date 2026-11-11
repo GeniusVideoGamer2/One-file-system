@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GX Wine Launcher
+Comment=Open Windows executables with Wine
+Exec=python3 /usr/local/bin/gx-wine-launcher %f
+Icon=application-x-executable
+Terminal=false
+Categories=Utility;System;
+MimeType=application/x-ms-dos-executable;application/x-msdownload;application/x-msi;
