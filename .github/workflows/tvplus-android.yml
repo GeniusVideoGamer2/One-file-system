@@ -6,10 +6,13 @@ on:
     paths:
       - 'TVPlus-Pro-Full-Edition-15/**'
       - '.github/workflows/tvplus-android.yml'
+concurrency:
+  group: tvplus-build-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -58,7 +61,7 @@ jobs:
           done
       - name: Build Full Edition debug APK
         working-directory: TVPlus-Pro-Full-Edition-15
-        run: gradle --no-daemon :full:assembleDebug :switcher:assembleDebug
+        run: timeout 12m gradle --no-daemon :full:assembleDebug :switcher:assembleDebug
       - name: Verify built APK files
         run: |
           set -e
