@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=GameXWIN Aether
+Description=Animated violet GX startup with pulsing logo and orbiting dots
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/gamexwin-aether
+ScriptFile=/usr/share/plymouth/themes/gamexwin-aether/gamexwin-aether.script
