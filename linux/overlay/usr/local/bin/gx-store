@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""GX Store: curated application catalog, no silent installation."""
+import shutil, subprocess, tkinter as tk, webbrowser
+from tkinter import ttk,messagebox
+root=tk.Tk();root.title("GameXOS Store · GameXWIN");root.geometry("900x620");root.configure(bg="#17142a")
+style=ttk.Style(root);style.theme_use("clam")
+style.configure("TFrame",background="#17142a")
+style.configure("TLabel",background="#17142a",foreground="#f5efff",font=("Sans",11))
+style.configure("TButton",padding=9)
+main=ttk.Frame(root,padding=24);main.pack(fill="both",expand=True)
+ttk.Label(main,text="GX  /  GameXOS Store",font=("Sans",25,"bold")).pack(anchor="w")
+ttk.Label(main,text="Discover Linux apps and Windows app downloads · Installation always requires your confirmation").pack(anchor="w",pady=(4,14))
+tabs=ttk.Notebook(main);tabs.pack(fill="both",expand=True)
+linux=ttk.Frame(tabs,padding=18);windows=ttk.Frame(tabs,padding=18)
+tabs.add(linux,text="Linux apps");tabs.add(windows,text="Windows · Wine")
+def open_url(url):
+    if messagebox.askyesno("GX Store","Open official website in your browser?\n"+url):webbrowser.open(url)
+def synaptic():
+    if shutil.which("synaptic"):subprocess.Popen(["synaptic"],start_new_session=True)
+    else:messagebox.showwarning("GX Store","Synaptic is not installed.")
+ttk.Label(linux,text="Install Linux software with the Debian package manager.").pack(anchor="w",pady=12)
+ttk.Button(linux,text="Open Synaptic Package Manager",command=synaptic).pack(anchor="w",pady=10)
+ttk.Label(linux,text="Firefox ESR, GParted, Wine and other packaged applications are managed through Debian.").pack(anchor="w",pady=10)
+ttk.Label(windows,text="Windows installers may not work under Wine. Downloads and installs are never automatic.",wraplength=740).pack(anchor="w",pady=12)
+catalog=[
+("Google Chrome","https://www.google.com/chrome/"),
+("Opera GX","https://www.opera.com/gx"),
+("Mozilla Firefox","https://www.mozilla.org/firefox/new/"),
+("VLC media player","https://www.videolan.org/vlc/"),
+("7-Zip","https://www.7-zip.org/"),
+]
+for name,url in catalog:
+    line=ttk.Frame(windows);line.pack(fill="x",pady=6)
+    ttk.Label(line,text=name,width=24).pack(side="left")
+    ttk.Button(line,text="Official download page",command=lambda u=url:open_url(u)).pack(side="left")
+def wine():
+    path="/usr/local/bin/gx-wine-launcher"
+    if shutil.which("python3"):subprocess.Popen(["python3",path],start_new_session=True)
+ttk.Button(windows,text="Open GX Wine Launcher",command=wine).pack(anchor="w",pady=20)
+root.mainloop()
