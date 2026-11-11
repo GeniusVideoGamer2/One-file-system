@@ -8,3 +8,5 @@ include ':gallery'
 include ':volume'
 
 include ':unified'
+
+include ':switcher'
