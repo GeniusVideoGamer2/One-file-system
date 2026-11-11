@@ -9,40 +9,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    container:
+      image: debian:trixie
+      options: --privileged
     timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
-      - name: Install live-build dependencies
+      - name: Install Debian 13 build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin mtools dosfstools curl
-          # Ubuntu 24.04 ships obsolete live-build 3.x; install current Debian 13 live-build only.
-          curl -fsSL https://deb.debian.org/debian/dists/trixie/main/binary-amd64/Packages.xz -o /tmp/debian-packages.xz
-          python3 - <<'PY'
-          import lzma,re,urllib.request
-          data=lzma.open('/tmp/debian-packages.xz','rt').read()
-          entry=next(x for x in data.split('\n\n') if x.startswith('Package: live-build\n'))
-          filename=re.search(r'^Filename: (.+)
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y live-build debootstrap xorriso squashfs-tools grub-pc-bin grub-efi-amd64-bin mtools dosfstools ca-certificates git sudo
+          lb --version
       - name: Build GameXWIN Linux Aether ISO
         run: bash linux/build-live.sh
       - name: Verify image
-        run: test -s linux/dist/GameXWIN-Linux-Aether-amd64.iso
-      - name: Upload ISO
-        uses: actions/upload-artifact@v4
-        with:
-          name: GameXWIN-Linux-Aether-amd64
-          path: linux/dist/GameXWIN-Linux-Aether-amd64.iso
-          if-no-files-found: error
-          retention-days: 7
-,entry,re.M).group(1)
-          urllib.request.urlretrieve('https://deb.debian.org/debian/'+filename,'/tmp/live-build.deb')
-          print(filename)
-          PY
-          sudo apt-get install -y /tmp/live-build.deb
-      - name: Build GameXWIN Linux Aether ISO
-        run: bash linux/build-live.sh
-      - name: Verify image
-        run: test -s linux/dist/GameXWIN-Linux-Aether-amd64.iso
+        run: |
+          test -s linux/dist/GameXWIN-Linux-Aether-amd64.iso
+          file linux/dist/GameXWIN-Linux-Aether-amd64.iso
+          sha256sum linux/dist/GameXWIN-Linux-Aether-amd64.iso
       - name: Upload ISO
         uses: actions/upload-artifact@v4
         with:
