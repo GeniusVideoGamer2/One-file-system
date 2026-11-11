@@ -1,0 +1,32 @@
+name: TV+ Pro Android 14 APK Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [tvplus-pro-15-android14]
+    paths:
+      - 'TVPlus-Pro-Full-Edition-15/**'
+      - '.github/workflows/tvplus-android.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Build five debug APKs
+        working-directory: TVPlus-Pro-Full-Edition-15
+        run: gradle --no-daemon :home:assembleDebug :settings:assembleDebug :folders:assembleDebug :gallery:assembleDebug :volume:assembleDebug
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: TVPlus-Pro-15-debug-apks
+          path: TVPlus-Pro-Full-Edition-15/*/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
