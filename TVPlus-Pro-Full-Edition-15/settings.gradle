@@ -1,0 +1,14 @@
+pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+rootProject.name='TVPlusPro'
+include ':home'
+include ':settings'
+include ':folders'
+include ':gallery'
+include ':volume'
+
+// Full Edition is built from the existing source directory to preserve all features.
+include ':full'
+project(':full').projectDir = file('unified')
+
+include ':switcher'

@@ -1,0 +1,3 @@
+plugins { id 'com.android.application' }
+android { namespace 'tv.plus.pro.volume'; compileSdk 35
+ defaultConfig { applicationId 'tv.plus.pro.volume'; minSdk 26; targetSdk 34; versionCode 1500; versionName '15.0.0' } }
