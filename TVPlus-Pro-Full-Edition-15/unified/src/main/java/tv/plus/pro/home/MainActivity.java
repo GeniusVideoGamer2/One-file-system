@@ -13,7 +13,9 @@ public class MainActivity extends Activity {
  @Override public void setAlpha(int alpha){} @Override public void setColorFilter(android.graphics.ColorFilter filter){} @Override public int getOpacity(){return android.graphics.PixelFormat.TRANSLUCENT;}
  }
  int dp(float n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
- GradientDrawable shape(int a,int b,int radius){GradientDrawable d=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{a,b});d.setCornerRadius(dp(radius));d.setStroke(dp(1),0x556e64b3);return d;}
+ GradientDrawable shape(int a,int b,int radius){GradientDrawable d=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{a,blend(a,0xff7368e8,0.16f),b});d.setCornerRadius(dp(radius));d.setStroke(dp(1),0x887f9cff);return d;}
+ int blend(int a,int b,float t){int r=(int)(android.graphics.Color.red(a)*(1-t)+android.graphics.Color.red(b)*t);int g=(int)(android.graphics.Color.green(a)*(1-t)+android.graphics.Color.green(b)*t);int bl=(int)(android.graphics.Color.blue(a)*(1-t)+android.graphics.Color.blue(b)*t);return android.graphics.Color.rgb(r,g,bl);}
+ void glassFocus(View v,int radius){v.setFocusable(true);v.setElevation(dp(5));v.setOnFocusChangeListener((view,focused)->{view.animate().scaleX(focused?1.035f:1f).scaleY(focused?1.035f:1f).translationZ(focused?dp(13):0).setDuration(170).start();view.setBackground(shape(focused?0xff7357d9:0xff233b76,focused?0xff3823a4:0xff28164d,radius));});}
  TextView text(String s,int size,boolean bold){TextView v=new TextView(this);v.setText(s);v.setTextColor(white);v.setTextSize(size);v.setGravity(Gravity.CENTER_VERTICAL);if(bold)v.setTypeface(null,1);return v;}
  LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(1);return l;}
  void gap(LinearLayout p,int n){Space s=new Space(this);p.addView(s,new LinearLayout.LayoutParams(1,dp(n)));}
@@ -34,9 +36,9 @@ public class MainActivity extends Activity {
  TextView big=text("Yeni nesil TV deneyimi",wide?21:18,true);hero.addView(big);
  TextView detail=text("Uygulamalar, içerikler, dosyalar ve daha fazlası.",12,false);detail.setTextColor(0xffe8dcff);hero.addView(detail);gap(hero,9);
  TextView start=text("▶  İzlemeye Başla",14,true);start.setGravity(Gravity.CENTER);start.setPadding(dp(12),dp(10),dp(12),dp(10));start.setBackground(shape(0xffb552fa,0xff632bd3,16));start.setFocusable(true);start.setOnClickListener(v->render("apps"));hero.addView(start,new LinearLayout.LayoutParams(wide?dp(185):-1,-2));
- hero.setOnClickListener(v->render("apps"));hero.setOnFocusChangeListener((v,focused)->hero.setAlpha(focused?0.82f:1f));
+ hero.setOnClickListener(v->render("apps"));hero.setElevation(dp(9));hero.setOnFocusChangeListener((v,focused)->{hero.animate().scaleX(focused?1.015f:1f).scaleY(focused?1.015f:1f).translationZ(focused?dp(12):0).setDuration(190).start();});
  dashboard.addView(hero,new LinearLayout.LayoutParams(wide?0:-1,-2,wide?5:0));
- LinearLayout info=column();info.setGravity(Gravity.CENTER_VERTICAL);info.setPadding(dp(15),dp(9),dp(15),dp(9));info.setBackground(shape(0xff322368,0xff151b45,23));
+ LinearLayout info=column();info.setGravity(Gravity.CENTER_VERTICAL);info.setPadding(dp(15),dp(9),dp(15),dp(9));info.setBackground(shape(0xff322368,0xff151b45,23));info.setElevation(dp(7));
  TextClock clock=new TextClock(this);clock.setFormat24Hour("HH:mm");clock.setFormat12Hour("HH:mm");clock.setTextSize(wide?30:25);clock.setTextColor(white);clock.setTypeface(null,1);info.addView(clock);
  TextClock date=new TextClock(this);date.setFormat24Hour("dd MMMM EEEE");date.setFormat12Hour("dd MMMM EEEE");date.setTextSize(12);date.setTextColor(0xffd7d2f0);info.addView(date);gap(info,9);
  TextView connectivity=text("◉  Bağlantı ve cihaz ayarları  ›",12,true);connectivity.setFocusable(true);connectivity.setOnClickListener(v->setting(Settings.ACTION_WIRELESS_SETTINGS));info.addView(connectivity);
@@ -59,7 +61,7 @@ public class MainActivity extends Activity {
  LinearLayout box=new LinearLayout(this);box.setOrientation(0);box.setGravity(Gravity.CENTER_VERTICAL);box.setPadding(dp(9),dp(9),dp(9),dp(9));box.setBackground(shape(0xff233f86,0xff492075,19));box.setFocusable(true);
  ImageView iv=new ImageView(this);iv.setImageResource(iconId);box.addView(iv,new LinearLayout.LayoutParams(dp(26),dp(26)));
  LinearLayout labels=column();labels.setPadding(dp(9),0,0,0);labels.addView(text(title,15,true));TextView sub=text(subtitle,10,false);sub.setTextColor(0xffc9c7e6);labels.addView(sub);box.addView(labels);
- box.setOnClickListener(v->action.run());box.setOnFocusChangeListener((v,focused)->box.setBackground(shape(focused?0xff7751ee:0xff233f86,focused?0xffa72cff:0xff492075,19)));
+ box.setOnClickListener(v->action.run());glassFocus(box,19);
  LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(wide?0:-1,-2,wide?1:0);lp.setMargins(dp(4),dp(4),dp(4),dp(4));parent.addView(box,lp);
  }
  void miniAction(LinearLayout parent,String label,Runnable action){TextView v=text(label,13,true);v.setGravity(Gravity.CENTER);v.setPadding(dp(15),dp(14),dp(15),dp(14));v.setBackground(shape(0xff242b67,0xff3a246a,17));v.setFocusable(true);v.setOnClickListener(w->action.run());v.setOnFocusChangeListener((w,f)->v.setBackground(shape(f?0xff8450e5:0xff242b67,f?0xff9b37ee:0xff3a246a,17)));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(wide?0:-1,-2,wide?1:0);lp.setMargins(dp(4),dp(4),dp(4),dp(4));parent.addView(v,lp);}
