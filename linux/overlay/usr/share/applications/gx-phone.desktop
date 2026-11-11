@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Phone
+Exec=python3 /usr/local/bin/gx-suite phone
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;

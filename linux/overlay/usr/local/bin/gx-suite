@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+import sys,subprocess,shutil,json,os,calendar,datetime
+from pathlib import Path
+import tkinter as tk
+from tkinter import ttk,messagebox
+app=sys.argv[1] if len(sys.argv)>1 else "hub"
+names={"hub":"GX Apps","files":"GX Files","settings":"GX Settings","store":"GX Store","terminal":"GX Terminal","notes":"GX Notes","reminders":"GX Reminders","contacts":"GX Contacts","calendar":"GX Calendar","calculator":"GX Calculator","browser":"GX Browser","photos":"GX Photos","music":"GX Music","weather":"GX Weather","clock":"GX Clock","phone":"GX Phone","messages":"GX Messages","maps":"GX Maps","mail":"GX Mail","about":"GX About"}
+root=tk.Tk();root.title(names.get(app,"GX Apps"));root.geometry("720x520");root.configure(bg="#19162e")
+style=ttk.Style(root);style.theme_use("clam");style.configure("TFrame",background="#19162e");style.configure("TLabel",background="#19162e",foreground="#f1eaff",font=("Sans",11));style.configure("TButton",padding=10)
+area=ttk.Frame(root,padding=22);area.pack(fill="both",expand=True)
+ttk.Label(area,text="GX  ·  "+names.get(app,"GX Apps"),font=("Sans",22,"bold")).pack(anchor="w",pady=(0,16))
+def note(s):ttk.Label(area,text=s,wraplength=620).pack(anchor="w",pady=6)
+def button(label,fn):ttk.Button(area,text=label,command=fn).pack(fill="x",pady=4)
+def run(args):
+    if shutil.which(args[0]):subprocess.Popen(args,start_new_session=True)
+    else:messagebox.showwarning("GX",args[0]+" is not installed.")
+data=Path(os.environ.get("XDG_DATA_HOME",str(Path.home()/".local/share")))/"gamexwin";data.mkdir(parents=True,exist_ok=True)
+def collection(kind):
+    path=data/(kind+".json")
+    try:items=json.loads(path.read_text())
+    except (OSError,ValueError):items=[]
+    box=tk.Listbox(area,bg="#30294d",fg="white",selectbackground="#6550a8");box.pack(fill="both",expand=True)
+    row=ttk.Frame(area);row.pack(fill="x",pady=8)
+    entry=ttk.Entry(row);entry.pack(side="left",fill="x",expand=True)
+    def refresh():box.delete(0,"end");[box.insert("end",x) for x in items]
+    def add():
+        if entry.get().strip():items.append(entry.get().strip());path.write_text(json.dumps(items,ensure_ascii=False));entry.delete(0,"end");refresh()
+    def delete():
+        if box.curselection():items.pop(box.curselection()[0]);path.write_text(json.dumps(items,ensure_ascii=False));refresh()
+    ttk.Button(row,text="Add",command=add).pack(side="left")
+    button("Delete selected",delete);refresh()
+if app=="hub":
+    note("Original GameXWIN desktop applications. Phone and Messages require a future Android bridge.")
+    grid=ttk.Frame(area);grid.pack(fill="both",expand=True)
+    for i,(key,label) in enumerate((x for x in names.items() if x[0]!="hub")):
+        ttk.Button(grid,text=label,command=lambda k=key:run(["python3",__file__,k])).grid(row=i//4,column=i%4,padx=5,pady=5,sticky="ew")
+    for c in range(4):grid.columnconfigure(c,weight=1)
+elif app in ("notes","reminders","contacts"):note("Saved locally in your home folder.");collection(app)
+elif app=="calendar":note(calendar.month(datetime.date.today().year,datetime.date.today().month))
+elif app=="calculator":
+    expression=tk.StringVar();ttk.Entry(area,textvariable=expression,font=("Sans",20)).pack(fill="x",pady=10)
+    def calc():
+        import ast,operator
+        ops={ast.Add:operator.add,ast.Sub:operator.sub,ast.Mult:operator.mul,ast.Div:operator.truediv}
+        def evaluate(n):
+            if isinstance(n,ast.Constant) and type(n.value) in (int,float):return n.value
+            if isinstance(n,ast.BinOp) and type(n.op) in ops:return ops[type(n.op)](evaluate(n.left),evaluate(n.right))
+            if isinstance(n,ast.UnaryOp) and isinstance(n.op,ast.USub):return -evaluate(n.operand)
+            raise ValueError("Only basic arithmetic is supported")
+        try:expression.set(str(evaluate(ast.parse(expression.get(),mode="eval").body)))
+        except Exception:expression.set("Invalid expression")
+    button("Calculate",calc)
+elif app=="files":button("Open file manager",lambda:run(["thunar"]))
+elif app=="settings":button("Open system settings",lambda:run(["xfce4-settings-manager"]))
+elif app=="store":button("Open Debian package manager",lambda:run(["synaptic"]))
+elif app=="terminal":button("Open terminal",lambda:run(["xfce4-terminal"]))
+elif app=="browser":button("Open browser",lambda:run(["firefox-esr"]))
+elif app=="photos":button("Open image viewer",lambda:run(["ristretto"]))
+elif app=="music":button("Open music player",lambda:run(["parole"]))
+elif app=="weather":note("Live weather requires a provider and network configuration; not yet implemented.")
+elif app=="clock":note(datetime.datetime.now().strftime("%H:%M:%S  ·  %Y-%m-%d"));button("Refresh",lambda:run(["python3",__file__,"clock"]))
+elif app=="maps":button("Open OpenStreetMap in browser",lambda:run(["firefox-esr","https://www.openstreetmap.org"]))
+elif app=="mail":button("Open email client",lambda:run(["thunderbird"]))
+elif app in ("phone","messages"):note("Android GX Connect bridge not yet implemented. Calls and SMS are unavailable until paired and authorized.")
+elif app=="about":note("GameXWIN OS 1.0 Aether · Debian Linux · XFCE\nGX application suite prototype.")
+root.mainloop()

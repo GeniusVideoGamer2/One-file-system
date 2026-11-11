@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Messages
+Exec=python3 /usr/local/bin/gx-suite messages
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Contacts
+Exec=python3 /usr/local/bin/gx-suite contacts
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;

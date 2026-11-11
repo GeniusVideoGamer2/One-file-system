@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Music
+Exec=python3 /usr/local/bin/gx-suite music
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
