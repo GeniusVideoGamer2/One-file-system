@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 command -v lb >/dev/null || { echo "Install live-build first"; exit 1; }
+python3 -m py_compile overlay/usr/local/bin/gx-welcome overlay/usr/local/bin/gx-store overlay/usr/local/bin/gx-installer overlay/usr/local/bin/gx-wine-launcher overlay/usr/local/bin/gx-wine-gecko-setup
 python3 tools/generate-gx-icons.py
 rm -rf work
 mkdir -p work
@@ -14,6 +15,7 @@ cp ../packages.list.chroot config/package-lists/gamexwin.list.chroot
 cp -a ../overlay/. config/includes.chroot/
 mkdir -p config/hooks/live
 cp ../hooks/*.hook.chroot config/hooks/live/
+chmod 755 config/hooks/live/*.hook.chroot
 chmod 755 config/includes.chroot/usr/local/bin/gamexwin-*
 sudo lb build
 mkdir -p ../dist
