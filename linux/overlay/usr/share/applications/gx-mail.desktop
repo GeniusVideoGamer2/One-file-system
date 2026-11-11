@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Mail
+Exec=python3 /usr/local/bin/gx-suite mail
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
