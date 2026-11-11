@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""GameXWIN native utility hub for the XFCE live desktop."""
+import os
+import platform
+import shutil
+import subprocess
+import tkinter as tk
+from tkinter import ttk, messagebox
+from pathlib import Path
+
+def launch(command):
+    binary = shutil.which(command[0])
+    if not binary:
+        messagebox.showwarning("GX Apps", f"Not installed: {command[0]}")
+        return
+    try:
+        subprocess.Popen([binary, *command[1:]], start_new_session=True)
+    except OSError as exc:
+        messagebox.showerror("GX Apps", str(exc))
+
+root = tk.Tk()
+root.title("GX Apps · GameXWIN Aether")
+root.geometry("690x460")
+root.minsize(530, 360)
+root.configure(bg="#171629")
+style = ttk.Style(root)
+style.theme_use("clam")
+style.configure("TFrame", background="#171629")
+style.configure("TLabel", background="#171629", foreground="#ece7ff", font=("Sans", 11))
+style.configure("Header.TLabel", font=("Sans", 21, "bold"))
+style.configure("TButton", padding=11, font=("Sans", 11))
+main = ttk.Frame(root, padding=25)
+main.pack(fill="both", expand=True)
+ttk.Label(main, text="GX · GameXWIN", style="Header.TLabel").pack(anchor="w")
+ttk.Label(main, text="Aether Edition  ·  Native desktop applications").pack(anchor="w", pady=(2, 18))
+tabs = ttk.Notebook(main)
+tabs.pack(fill="both", expand=True)
+def page(name, description, actions):
+    frame = ttk.Frame(tabs, padding=20)
+    tabs.add(frame, text=name)
+    ttk.Label(frame, text=description, wraplength=550).pack(anchor="w", pady=(0, 16))
+    for title, cmd in actions:
+        ttk.Button(frame, text=title, command=lambda c=cmd: launch(c)).pack(fill="x", pady=4)
+page("GX Files", "Browse, copy and manage files using the installed Thunar file manager.", [
+    ("Open Home Folder", ["thunar", str(Path.home())]),
+    ("Open Downloads", ["thunar", str(Path.home() / "Downloads")]),
+])
+page("GX Settings", "Open the actual XFCE system configuration tools.", [
+    ("System Settings", ["xfce4-settings-manager"]),
+    ("Display Settings", ["xfce4-display-settings"]),
+    ("Appearance", ["xfce4-appearance-settings"]),
+])
+page("GX Store", "Browse Debian software through the package manager. Installing software may require administrator privileges.", [
+    ("Open Package Manager", ["synaptic"]),
+])
+page("GX Terminal", "Launch the system terminal for commands.", [
+    ("Open Terminal", ["xfce4-terminal"]),
+])
+info = ttk.Frame(tabs, padding=20)
+tabs.add(info, text="GX About")
+for line in ("GameXWIN OS 1.0 · Aether Edition", "Linux kernel: " + platform.release(),
+             "Architecture: " + platform.machine(), "Desktop: XFCE"):
+    ttk.Label(info, text=line).pack(anchor="w", pady=6)
+root.mainloop()
