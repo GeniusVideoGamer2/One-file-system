@@ -33,6 +33,28 @@ jobs:
       - name: Check project files
         run: |
           test -f TVPlus-Pro-Full-Edition-15/settings.gradle || test -f TVPlus-Pro-Full-Edition-15/settings.gradle.kts
+      - name: Check optional Android QEMU 64-bit engines
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="TVPlus-Pro-Full-Edition-15/unified/src/main/jniLibs"
+          for abi in arm64-v8a x86_64; do
+            bin="$base/$abi/libqemu-system-x86_64.so"
+            if [ -f "$bin" ]; then
+              echo "QEMU candidate for $abi: $bin"
+              file "$bin"
+              if ! file "$bin" | grep -q 'ELF 64-bit'; then
+                echo "::error::Invalid ELF binary for $abi"
+                exit 1
+              fi
+              case "$abi" in
+                arm64-v8a) file "$bin" | grep -Eq 'ARM aarch64|ARM64' || { echo "::error::Wrong ABI for $abi"; exit 1; };;
+                x86_64) file "$bin" | grep -q 'x86-64' || { echo "::error::Wrong ABI for $abi"; exit 1; };;
+              esac
+            else
+              echo "::warning::QEMU engine missing for $abi; APK can build, but VM launch will be unavailable."
+            fi
+          done
       - name: Build unified debug APK
         working-directory: TVPlus-Pro-Full-Edition-15
         run: gradle --no-daemon :unified:assembleDebug :switcher:assembleDebug
