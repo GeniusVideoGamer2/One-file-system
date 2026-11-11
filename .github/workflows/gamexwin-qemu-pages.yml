@@ -1,0 +1,72 @@
+name: GameXWIN QEMU Smoke Test and Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [gamexwin-os-1.0]
+    paths:
+      - 'linux/test-iso-qemu.sh'
+      - '.github/workflows/gamexwin-qemu-pages.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install QEMU
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86
+      - name: Download latest successful Aether ISO artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p qemu-input
+          RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/gamexwin-linux-aether.yml/runs?branch=gamexwin-os-1.0&status=success&per_page=1" --jq '.workflow_runs[0].id')
+          test -n "$RUN_ID" && test "$RUN_ID" != "null"
+          echo "Using successful ISO build run: $RUN_ID"
+          gh run download "$RUN_ID" -n GameXWIN-Linux-Aether-amd64 -D qemu-input
+          test -s qemu-input/GameXWIN-Linux-Aether-amd64.iso
+      - name: QEMU BIOS smoke test
+        id: smoke
+        continue-on-error: true
+        run: bash linux/test-iso-qemu.sh qemu-input/GameXWIN-Linux-Aether-amd64.iso
+      - name: Generate truthful HTML report
+        if: always()
+        env:
+          SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p site
+          python3 - <<'PY'
+          import os,html,pathlib
+          outcome=os.getenv("SMOKE_OUTCOME","unknown")
+          status="QEMU process test completed; graphical desktop NOT verified" if outcome=="success" else "QEMU test FAILED or did not run"
+          run=html.escape(os.getenv("RUN_URL",""))
+          body=f"""<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GameXWIN Boot Test</title><style>body{{background:#101125;color:#f2eaff;font:16px system-ui;margin:3rem auto;max-width:720px;padding:0 1rem}}a{{color:#c5aaff}}.card{{background:#222340;border-radius:20px;padding:24px}}</style><h1>GX · GameXWIN Aether</h1><div class="card"><h2>QEMU test report</h2><p>{html.escape(status)}</p><p>ISO download and process-level smoke test only. GRUB, XFCE graphical login, Bliss OS, Play Store, Wine execution and Limbo compatibility remain unverified.</p><p><a href="{run}">View GitHub Actions run and logs</a></p></div></html>"""
+          pathlib.Path("site/index.html").write_text(body)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: GameXWIN-QEMU-Test-Report
+          path: |
+            site/
+            qemu-report/
+          if-no-files-found: warn
+      - uses: actions/upload-pages-artifact@v4
+        if: always()
+        with:
+          path: site
+  deploy:
+    if: always()
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
