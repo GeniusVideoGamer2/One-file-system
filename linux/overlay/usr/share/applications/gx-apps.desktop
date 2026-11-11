@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GX Apps
+Comment=GameXWIN native application hub
+Exec=python3 /usr/local/bin/gx-apps
+Icon=applications-system
+Terminal=false
+Categories=System;Utility;
