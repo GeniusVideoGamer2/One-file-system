@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Files
+Exec=python3 /usr/local/bin/gx-suite files
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
