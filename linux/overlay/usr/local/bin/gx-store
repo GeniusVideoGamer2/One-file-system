@@ -21,10 +21,11 @@ def synaptic():
 ttk.Label(linux,text="Install Linux software with the Debian package manager.").pack(anchor="w",pady=12)
 ttk.Button(linux,text="Open Synaptic Package Manager",command=synaptic).pack(anchor="w",pady=10)
 ttk.Label(linux,text="Firefox ESR, GParted, Wine and other packaged applications are managed through Debian.").pack(anchor="w",pady=10)
+ttk.Button(linux,text="Opera GX Linux · Official download",command=lambda:open_url("https://www.opera.com/gx/linux")).pack(anchor="w",pady=10)
 ttk.Label(windows,text="Windows installers may not work under Wine. Downloads and installs are never automatic.",wraplength=740).pack(anchor="w",pady=12)
 catalog=[
 ("Google Chrome","https://www.google.com/chrome/"),
-("Opera GX","https://www.opera.com/gx"),
+
 ("Mozilla Firefox","https://www.mozilla.org/firefox/new/"),
 ("VLC media player","https://www.videolan.org/vlc/"),
 ("7-Zip","https://www.7-zip.org/"),
