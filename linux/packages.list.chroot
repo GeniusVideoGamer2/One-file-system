@@ -6,6 +6,8 @@ network-manager
 network-manager-gnome
 xfce4
 xfce4-goodies
+plank
+papirus-icon-theme
 lightdm
 lightdm-gtk-greeter
 thunar
