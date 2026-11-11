@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GameXWIN Aether Desktop
+Exec=/usr/local/bin/gamexwin-desktop-setup
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true
