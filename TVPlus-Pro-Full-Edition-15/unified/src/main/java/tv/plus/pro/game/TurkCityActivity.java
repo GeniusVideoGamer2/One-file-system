@@ -82,9 +82,31 @@ public class TurkCityActivity extends Activity {
  @Override public void onDrawFrame(GL10 gl){long now=System.nanoTime();float dt=Math.min(.05f,(now-last)/1e9f);last=now;if(jumpHeight>0||jumpVelocity>0){jumpHeight+=jumpVelocity*dt;jumpVelocity-=14f*dt;if(jumpHeight<0){jumpHeight=0;jumpVelocity=0;}}angle+=turn*dt*(driving?1.1f:1.6f);float target=move*(driving?17f:6f);speed+=(target-speed)*Math.min(1,dt*(driving?1.4f:8f));x+=Math.sin(angle)*speed*dt;z-=Math.cos(angle)*speed*dt;x=Math.max(-43,Math.min(43,x));z=Math.max(-43,Math.min(43,z));
  GLES20.glClearColor(night?.012f:.33f,night?.019f:.55f,night?.055f:.78f,1);GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);GLES20.glUseProgram(program);cube.position(0);GLES20.glVertexAttribPointer(posLoc,3,GLES20.GL_FLOAT,false,0,cube);GLES20.glEnableVertexAttribArray(posLoc);
  float behind=driving&&!cockpit?6.5f:0;float eye=driving?(cockpit?1.45f:3.6f):(crouch?1.2f:2.3f)+jumpHeight;Matrix.setLookAtM(view,0,x-(float)Math.sin(angle)*behind,eye,z+(float)Math.cos(angle)*behind,x+(float)Math.sin(angle)*10,driving?1.3f:1.8f,z-(float)Math.cos(angle)*10,0,1,0);Matrix.multiplyMM(vp,0,projection,0,view,0);
- block(0,-.25f,0,100,.2f,100,.16f,.23f,.22f);block(0,-.03f,0,7,.03f,100,.15f,.17f,.22f);block(0,-.03f,0,100,.03f,7,.15f,.17f,.22f);
+ block(0,-.25f,0,100,.2f,100,.18f,.29f,.24f);
+ // Asphalt, pavements, curbs and pedestrian crossings.
+ block(0,-.025f,0,7,.03f,100,.10f,.13f,.19f);
+ block(0,-.025f,0,100,.03f,7,.10f,.13f,.19f);
+ for(int side=-1;side<=1;side+=2){
+ block(side*5.1f,.02f,0,1.65f,.055f,100,.42f,.43f,.49f);
+ block(0,.02f,side*5.1f,100,.055f,1.65f,.42f,.43f,.49f);
+ block(side*4.08f,.09f,0,.12f,.09f,100,.83f,.79f,.64f);
+ block(0,.09f,side*4.08f,100,.09f,.12f,.83f,.79f,.64f);
+ }
+ for(int i=-3;i<=3;i++){block(i*.76f,.016f,-9f,.25f,.015f,.64f,.93f,.91f,.81f);block(-9f,.016f,i*.76f,.64f,.015f,.25f,.93f,.91f,.81f);}
  for(int k=-40;k<=40;k+=8){block(.02f,.005f,k, .13f,.01f,1.5f,.94f,.81f,.48f);block(k,.005f,.02f,1.5f,.01f,.13f,.94f,.81f,.48f);}
- for(int i=-4;i<=4;i++)for(int j=-4;j<=4;j++){if(i==0||j==0)continue;float h=3+Math.abs((i*17+j*11)%7);float px=i*10,pz=j*10;block(px,h/2,pz,3.6f,h/2,3.6f,.22f+((i+5)%3)*.06f,.28f,.43f);block(px,h+.18f,pz,3.8f,.18f,3.8f,.4f,.28f,.54f);for(int floor=1;floor<h;floor+=2){block(px, floor,pz+3.65f,2.5f,.22f,.03f,.88f,.74f,.4f);}}
+ for(int i=-4;i<=4;i++)for(int j=-4;j<=4;j++){if(i==0||j==0)continue;float h=3+Math.abs((i*17+j*11)%7);float px=i*10,pz=j*10;float facade=.23f+((i+5)%3)*.06f;
+ block(px,h/2,pz,3.6f,h/2,3.6f,facade,.30f,.45f);
+ block(px,h+.18f,pz,3.8f,.18f,3.8f,.34f,.26f,.48f);
+ block(px,.42f,pz-3.65f,.62f,.42f,.08f,.10f,.12f,.18f);
+ for(int floor=1;floor<h;floor+=2){
+ block(px,floor,pz+3.65f,2.5f,.07f,.04f,.15f,.17f,.25f);
+ for(int win=-2;win<=2;win+=2){
+ float light=night?.9f:.40f;
+ block(px+win,floor+.34f,pz+3.65f,.58f,.49f,.045f,light,light*.86f,.57f);
+ block(px+win,floor+.34f,pz-3.65f,.58f,.49f,.045f,light,light*.86f,.57f);
+ block(px+3.65f,floor+.34f,pz+win,.045f,.49f,.58f,light,light*.86f,.57f);
+ }
+ }}
  // Traffic follows two roads; headlights are visible at night.
  float seconds=now/1e9f;
  for(int i=0;i<7;i++){float along=((seconds*(i%2==0?3.2f:-2.6f)+i*17+140)%100)-50;float lane=i%2==0?1.9f:-1.9f;
@@ -96,7 +118,7 @@ public class TurkCityActivity extends Activity {
  for(int i=-4;i<=4;i++){float a=i*10f+4.5f;
  block(a,1.6f,5.4f,.18f,1.6f,.18f,.28f,.29f,.36f);block(a,3.3f,5.4f,.65f,.12f,.28f,night?1f:.72f,night?.85f:.77f,.46f);
  block(5.4f,1.6f,a,.18f,1.6f,.18f,.28f,.29f,.36f);block(5.4f,3.3f,a,.28f,.12f,.65f,night?1f:.72f,night?.85f:.77f,.46f);
- block(a,1.1f,-6.5f,.25f,1.1f,.25f,.36f,.25f,.16f);block(a,2.7f,-6.5f,1.15f,1.25f,1.15f,.08f,.34f,.18f);
+ block(a,1.1f,-6.5f,.25f,1.1f,.25f,.36f,.25f,.16f);block(a,2.55f,-6.5f,1.02f,.76f,1.02f,.07f,.30f,.16f);block(a-.45f,3.15f,-6.5f,.78f,.65f,.78f,.10f,.39f,.19f);block(a+.43f,3.04f,-6.5f,.75f,.70f,.75f,.06f,.36f,.17f);
  }
  // Cosmetic-only energy pulse: visual collectible effect, not a projectile or damage system.
  if(now<pulseUntil){float t=(pulseUntil-now)/450000000f;float rr=effectSkin==2?1f:effectSkin==3?.2f:.45f;float gg=effectSkin==3?1f:effectSkin==1?.8f:.25f;float bb=effectSkin==2?.2f:1f;float px=x+(float)Math.sin(angle)*3,pz=z-(float)Math.cos(angle)*3;block(px,1.2f,pz,.3f+t*.6f,.3f+t*.6f,.3f+t*.6f,rr,gg,bb);}
