@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Calendar
+Exec=python3 /usr/local/bin/gx-suite calendar
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
