@@ -1,0 +1,21 @@
+#!/bin/sh
+# First-session XFCE layout for GameXWIN Aether. Idempotent.
+set -eu
+marker="$HOME/.config/gamexwin/aether-desktop-v1"
+[ -e "$marker" ] && exit 0
+mkdir -p "$HOME/.config/gamexwin"
+xfconf-query -c xsettings -p /Net/ThemeName -n -t string -s Adwaita-dark || true
+xfconf-query -c xsettings -p /Net/IconThemeName -n -t string -s Papirus-Dark || true
+xfconf-query -c xfwm4 -p /general/theme -n -t string -s Default || true
+xfconf-query -c xfce4-desktop -p /desktop-icons/style -n -t int -s 2 || true
+xfconf-query -c xfce4-panel -p /panels -n -a -t int -s 1 || true
+xfconf-query -c xfce4-panel -p /panels/panel-1/position -n -t string -s 'p=6;x=0;y=0' || true
+xfconf-query -c xfce4-panel -p /panels/panel-1/length -n -t int -s 100 || true
+xfconf-query -c xfce4-panel -p /panels/panel-1/size -n -t int -s 30 || true
+xfconf-query -c xfce4-panel -p /panels/panel-1/position-locked -n -t bool -s true || true
+# Apply wallpaper to all existing monitor/workspace properties.
+xfconf-query -c xfce4-desktop -lv 2>/dev/null | awk '/last-image/{print $1}' | while read -r prop; do
+ xfconf-query -c xfce4-desktop -p "$prop" -s /usr/share/backgrounds/gamexwin/aether.svg || true
+done
+touch "$marker"
+plank >/dev/null 2>&1 &
