@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=GX Calculator
+Exec=python3 /usr/local/bin/gx-suite calculator
+Icon=applications-utilities
+Terminal=false
+Categories=Utility;
