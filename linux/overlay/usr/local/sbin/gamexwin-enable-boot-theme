@@ -1,6 +1,30 @@
 #!/bin/sh
 set -eu
-# Enable the bundled animated Plymouth theme inside the live filesystem.
-update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/gamexwin-aether/gamexwin-aether.plymouth 120
-update-alternatives --set default.plymouth /usr/share/plymouth/themes/gamexwin-aether/gamexwin-aether.plymouth
+# Select Aether before rebuilding the live initramfs.
+theme=/usr/share/plymouth/themes/gamexwin-aether/gamexwin-aether.plymouth
+test -s "$theme"
+test -s /usr/share/plymouth/themes/gamexwin-aether/gamexwin-aether.script
+update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth "$theme" 120
+update-alternatives --set default.plymouth "$theme"
+# Show immediately even on a fast live USB boot.
+mkdir -p /etc/plymouth
+cat > /etc/plymouth/plymouthd.conf <<'EOF'
+[Daemon]
+Theme=gamexwin-aether
+ShowDelay=0
+DeviceTimeout=8
+EOF
+# Recreate initramfs, not merely update one that may predate the theme.
 update-initramfs -u -k all
+# Verify the custom theme is actually included in the live boot image.
+found=0
+for initrd in /boot/initrd.img-*; do
+    [ -f "$initrd" ] || continue
+    if lsinitramfs "$initrd" | grep -q 'gamexwin-aether/gamexwin-aether.script'; then
+        found=1
+    else
+        echo "ERROR: GX animation missing from $initrd" >&2
+        exit 1
+    fi
+done
+[ "$found" -eq 1 ] || { echo "ERROR: no initramfs to verify" >&2; exit 1; }
