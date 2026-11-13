@@ -1,0 +1,31 @@
+name: Los Santos Apex V Android
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Unity project
+        uses: actions/checkout@v4
+      - name: Verify Unity project
+        shell: bash
+        run: |
+          test -f ProjectSettings/ProjectVersion.txt || { echo "Unity project files missing at repository root"; exit 1; }
+      - name: Build Android with Unity
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          buildName: LosSantosApexV
+      - name: Upload Android build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LosSantosApexV-Android
+          path: build/Android/
+          if-no-files-found: error
